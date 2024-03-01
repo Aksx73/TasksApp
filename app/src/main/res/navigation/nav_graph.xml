@@ -3,26 +3,27 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
-    app:startDestination="@id/FirstFragment">
+    app:startDestination="@id/TaskFragment">
 
     <fragment
-        android:id="@+id/FirstFragment"
-        android:name="com.absut.tasksapp.FirstFragment"
-        android:label="@string/first_fragment_label"
-        tools:layout="@layout/fragment_first">
+        android:id="@+id/TaskFragment"
+        android:name="com.absut.tasksapp.ui.tasks.TasksFragment"
+        android:label="My Tasks"
+        tools:layout="@layout/fragment_tasks">
 
         <action
-            android:id="@+id/action_FirstFragment_to_SecondFragment"
-            app:destination="@id/SecondFragment" />
+            android:id="@+id/action_TaskFragment_to_AddEditTaskFragment"
+            app:destination="@id/AddEditTaskFragment" />
     </fragment>
     <fragment
-        android:id="@+id/SecondFragment"
-        android:name="com.absut.tasksapp.SecondFragment"
-        android:label="@string/second_fragment_label"
-        tools:layout="@layout/fragment_second">
-
-        <action
-            android:id="@+id/action_SecondFragment_to_FirstFragment"
-            app:destination="@id/FirstFragment" />
+        android:id="@+id/AddEditTaskFragment"
+        android:name="com.absut.tasksapp.ui.addedittask.AddEditFragment"
+        android:label=""
+        tools:layout="@layout/fragment_add_edit">
+        <argument
+            android:name="task"
+            android:defaultValue="@null"
+            app:argType="com.absut.todo.data.Task"
+            app:nullable="true" />
     </fragment>
 </navigation>
