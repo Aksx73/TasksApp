@@ -14,13 +14,13 @@ interface TaskDao {
         }
     }
 
-    @Query("SELECT * FROM task_table WHERE completed != :completed ORDER BY createdDate DESC")
+    @Query("SELECT * FROM task_table WHERE completed == :completed ORDER BY createdDate DESC")
     fun getTaskSortedByCreatedDate(completed: Boolean): Flow<List<Task>>
 
-    @Query("SELECT * FROM task_table WHERE completed != :completed ORDER BY dueDate DESC")
+    @Query("SELECT * FROM task_table WHERE completed == :completed ORDER BY dueDate DESC")
     fun getTaskSortedByDueDate(completed: Boolean): Flow<List<Task>>
 
-    @Query("SELECT * FROM task_table WHERE completed = :completed ORDER BY completedDate DESC")
+    @Query("SELECT * FROM task_table WHERE completed == :completed ORDER BY completedDate DESC")
     fun getTaskSortedByCompletedDate(completed: Boolean): Flow<List<Task>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
