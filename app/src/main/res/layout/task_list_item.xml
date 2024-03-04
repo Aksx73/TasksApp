@@ -26,8 +26,10 @@
         android:textAppearance="?textAppearanceTitleMedium"
         app:layout_constraintBaseline_toBaselineOf="@+id/checkbox"
         app:layout_constraintEnd_toEndOf="parent"
+        android:maxLines="8"
+        android:ellipsize="end"
         app:layout_constraintStart_toEndOf="@+id/checkbox"
-        tools:text="Lorem Ipsum sdv sfsc sdfcsd fc sdc sdcsd csdc sdc sdcs csdcsd csdcsdcsdc sdg fd fdg d dfg dfg d dfg fdg dfg dfg g dfgdgd dfg " />
+        tools:text="@string/lorem_ipsum" />
 
     <com.google.android.material.chip.Chip
         android:id="@+id/chip_date"

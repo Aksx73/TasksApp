@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.absut.tasksapp.R
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -23,6 +24,17 @@ class CompletedTaskFragment : Fragment() {
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_completed_task, container, false)
     }
+
+    /*private fun deleteAllCompletedTask() {
+        MaterialAlertDialogBuilder(requireActivity())
+            .setTitle("Delete all completed task?")
+            .setMessage("This action cannot be undone")
+            .setPositiveButton("Delete") { _, _ ->
+                viewModel.deleteAllCompletedTask()
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }*/
 
     companion object {
 

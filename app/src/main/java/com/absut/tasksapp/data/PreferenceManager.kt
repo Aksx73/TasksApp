@@ -24,7 +24,7 @@ private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(na
 class PreferenceManager @Inject constructor(@ApplicationContext context: Context) {
     private val dataStore = context.dataStore
 
-    val preferencesFlow: Flow<SortOrder> = dataStore.data
+    val sortOrderFlow: Flow<SortOrder> = dataStore.data
         .map { preferences ->
              SortOrder.valueOf(preferences[SORT_ORDER] ?: SortOrder.BY_CREATED_DATE.name)
         }
