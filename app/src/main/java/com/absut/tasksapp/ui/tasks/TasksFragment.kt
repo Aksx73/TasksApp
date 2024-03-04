@@ -18,8 +18,10 @@ import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.absut.tasksapp.R
 import com.absut.tasksapp.databinding.FragmentTasksBinding
 import com.google.android.material.tabs.TabLayoutMediator
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
+@AndroidEntryPoint
 class TasksFragment : Fragment(R.layout.fragment_tasks), MenuProvider {
 
     private val tabTitleArray = arrayOf(
