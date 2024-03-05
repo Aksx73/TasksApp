@@ -1,6 +1,7 @@
 package com.absut.tasksapp.ui.tasks
 
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.Menu
@@ -12,18 +13,21 @@ import androidx.appcompat.widget.SearchView
 import androidx.core.view.MenuHost
 import androidx.core.view.MenuProvider
 import androidx.fragment.app.FragmentManager
+import androidx.fragment.app.setFragmentResultListener
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.absut.tasksapp.R
 import com.absut.tasksapp.databinding.FragmentTasksBinding
+import com.absut.tasksapp.util.Constants
+import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.tabs.TabLayoutMediator
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
-class TasksFragment : Fragment(R.layout.fragment_tasks), MenuProvider {
+class TasksFragment : Fragment(R.layout.fragment_tasks) {
 
     private val tabTitleArray = arrayOf(
         "TODO",
@@ -34,9 +38,6 @@ class TasksFragment : Fragment(R.layout.fragment_tasks), MenuProvider {
         super.onViewCreated(view, savedInstanceState)
 
         val binding = FragmentTasksBinding.bind(view)
-
-        val menuHost: MenuHost = requireActivity()
-        menuHost.addMenuProvider(this, viewLifecycleOwner, Lifecycle.State.RESUMED)
 
         val viewPager = binding.viewPager
         val tabLayout = binding.tabLayout
@@ -55,6 +56,19 @@ class TasksFragment : Fragment(R.layout.fragment_tasks), MenuProvider {
                 )
             )
         }
+
+        setFragmentResultListener("add_edit_request") { _, bundle ->
+            val result = bundle.getInt("add_edit_result")
+            Log.d("TAG", "onViewCreated: $result")
+            when(result){
+                Constants.ADD_TASK_RESULT_OK -> {
+                    Snackbar.make(binding.fabAdd,"Task added",Snackbar.LENGTH_SHORT).show()
+                }
+                Constants.EDIT_TASK_RESULT_OK -> {
+                    Snackbar.make(binding.fabAdd,"Task updated",Snackbar.LENGTH_SHORT).show()
+                }
+            }
+        }
     }
 
     inner class ViewPagerAdapter(fragmentManager: FragmentManager, lifecycle: Lifecycle) :
@@ -69,51 +83,6 @@ class TasksFragment : Fragment(R.layout.fragment_tasks), MenuProvider {
                 1 -> return CompletedTaskFragment()
             }
             return TodoTaskFragment()
-        }
-    }
-
-    override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
-        menuInflater.inflate(R.menu.menu_main, menu)
-
-        /*  val searchItem = menu.findItem(R.id.action_search)
-          searchView = searchItem.actionView as SearchView
-
-          val pendingQuery = viewModel.searchQuery.value
-          if (pendingQuery != null && pendingQuery.isNotEmpty()) {
-              searchItem.expandActionView()
-              searchView.setQuery(pendingQuery, false)
-          }
-
-          searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
-              override fun onQueryTextSubmit(query: String?): Boolean {
-                  return false
-              }
-
-              override fun onQueryTextChange(newText: String?): Boolean {
-                  viewModel.searchQuery.value = newText
-                  return true
-              }
-          })*/
-
-        /* viewLifecycleOwner.lifecycleScope.launch {
-             menu.findItem(R.id.action_hide_completed).isChecked =
-                 viewModel.preferenceFlow.first().hideCompleted
-         }*/
-
-    }
-
-    override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
-        return when (menuItem.itemId) {
-            /* R.id.action_hide_completed -> {
-                 menuItem.isChecked = !menuItem.isChecked
-                 viewModel.onHideCompletedClick(menuItem.isChecked)
-                 true
-             }
-             R.id.action_delete_all_completed -> {
-                 deleteAllCompletedTask()
-                 true
-             }*/
-            else -> false
         }
     }
 

@@ -29,64 +29,14 @@ abstract class TaskDatabase : RoomDatabase() {
             val dao = database.get().taskDao()
 
             applicationScope.launch {
-                dao.insert(
-                    Task(
-                        name = "Wash the dishes",
-                        completed = false,
-                        completedDate = 0
-                    )
-                )
-                dao.insert(
-                    Task(
-                        name = "Do the laundry",
-                        dueDate = 0,
-                        completed = false,
-                        completedDate = 0
-                    )
-                )
-                dao.insert(
-                    Task(
-                        name = "Buy groceries",
-                        completed = false,
-                        completedDate = 0
-                    )
-                )
-                dao.insert(
-                    Task(
-                        name = "Prepare food", dueDate = 0,
-                        completed = true,
-                        completedDate = 0
-                    )
-                )
-                dao.insert(
-                    Task(
-                        name = "Call mom", dueDate = 0,
-                        completed = true,
-                        completedDate = 0
-                    )
-                )
-                dao.insert(
-                    Task(
-                        name = "Visit grandma",
-                        dueDate = 1709570804,
-                        completed = false,
-                        completedDate = 0
-                    )
-                )
-                dao.insert(
-                    Task(
-                        name = "Repair my bike", dueDate = 0,
-                        completed = true,
-                        completedDate = 0
-                    )
-                )
-                dao.insert(
-                    Task(
-                        name = "Call Elon Musk", dueDate = 0,
-                        completed = false,
-                        completedDate = 0
-                    )
-                )
+                dao.insert(Task(name = "Wash the dishes", dueDate = 1709570804000))
+                dao.insert(Task(name = "Do the laundry", createdDate = 1709570804000))
+                dao.insert(Task(name = "Buy groceries"))
+                dao.insert(Task(name = "Prepare food", completed = true))
+                dao.insert(Task(name = "Call mom", completed = true))
+                dao.insert(Task(name = "Visit grandma", dueDate = 1709570804000))
+                dao.insert(Task(name = "Repair my bike", dueDate = 1709570804000, completed = true))
+                dao.insert(Task(name = "Call Elon Musk", createdDate = 1709570804000))
             }
         }
     }

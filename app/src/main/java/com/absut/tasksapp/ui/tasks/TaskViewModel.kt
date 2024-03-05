@@ -7,6 +7,8 @@ import com.absut.tasksapp.data.PreferenceManager
 import com.absut.tasksapp.data.SortOrder
 import com.absut.tasksapp.data.Task
 import com.absut.tasksapp.data.TaskRepository
+import com.absut.tasksapp.util.Constants.ADD_TASK_RESULT_OK
+import com.absut.tasksapp.util.Constants.EDIT_TASK_RESULT_OK
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
@@ -75,11 +77,6 @@ class TaskViewModel @Inject constructor(
     sealed class TasksEvent {
         data class ShowUndoDeleteTaskMessage(val task: Task) : TasksEvent()
         data class ShowTaskSavedConfirmationMessage(val msg: String) : TasksEvent()
-    }
-
-    companion object {
-        const val ADD_TASK_RESULT_OK = 23
-        const val EDIT_TASK_RESULT_OK = 24
     }
 
 }

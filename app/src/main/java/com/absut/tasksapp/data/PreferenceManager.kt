@@ -26,7 +26,7 @@ class PreferenceManager @Inject constructor(@ApplicationContext context: Context
 
     val sortOrderFlow: Flow<SortOrder> = dataStore.data
         .map { preferences ->
-             SortOrder.valueOf(preferences[SORT_ORDER] ?: SortOrder.BY_DUE_DATE.name)
+             SortOrder.valueOf(preferences[SORT_ORDER] ?: SortOrder.BY_CREATED_DATE.name)
         }
         .catch { exception ->
             if (exception is IOException) {
