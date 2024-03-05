@@ -24,6 +24,7 @@ import com.absut.tasksapp.R
 import com.absut.tasksapp.databinding.FragmentAddEditBinding
 import com.absut.tasksapp.databinding.FragmentTodoTaskBinding
 import com.absut.tasksapp.ui.tasks.TaskViewModel
+import com.absut.tasksapp.util.Util.showSnackbarWithAnchor
 import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
@@ -84,10 +85,7 @@ class AddEditFragment : Fragment(), MenuProvider {
 
         binding.fabSave.setOnClickListener {
             if (binding.etTask.text.isNullOrBlank()) {
-                val snackbar =
-                    Snackbar.make(binding.fabSave, "Task cannot be empty", Snackbar.LENGTH_SHORT)
-                snackbar.anchorView = it
-                snackbar.show()
+                it.showSnackbarWithAnchor("Task cannot be empty")
             } else {
                 viewModel.onSaveClick(
                     title = binding.etTask.text.toString(),
@@ -138,6 +136,7 @@ class AddEditFragment : Fragment(), MenuProvider {
 
         datePicker.addOnPositiveButtonClickListener {
             // Respond to positive button click.\
+            selectedDueDate = it
             binding.txtAddDate.isVisible = false
             binding.chipDate.isVisible = true
             binding.chipDate.text = DateFormat.getDateInstance().format(it)
