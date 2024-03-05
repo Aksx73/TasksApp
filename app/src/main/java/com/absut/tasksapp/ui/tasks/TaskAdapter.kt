@@ -49,10 +49,13 @@ class TaskAdapter(
         fun bind(task: Task) {
             binding.apply {
                 checkbox.isChecked = task.completed
+                chipDate.isVisible = !task.completed
+
                 txtTitle.text = task.name
                 txtTitle.paint.isStrikeThruText = task.completed
-                chipDate.text = task.dueDate.toString()
-                chipDate.isVisible = !task.completed
+                if (task.dueDate.toInt() != 0) {
+                    chipDate.text = task.formattedDate(task.dueDate)
+                } else chipDate.isVisible = false
             }
         }
     }

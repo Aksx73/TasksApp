@@ -14,6 +14,7 @@ import androidx.core.view.MenuProvider
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.absut.tasksapp.R
 import com.absut.tasksapp.databinding.FragmentTasksBinding
@@ -46,6 +47,14 @@ class TasksFragment : Fragment(R.layout.fragment_tasks), MenuProvider {
         TabLayoutMediator(tabLayout, viewPager) { tab, position ->
             tab.text = tabTitleArray[position]
         }.attach()
+
+        binding.fabAdd.setOnClickListener {
+            findNavController().navigate(
+                TasksFragmentDirections.actionTaskFragmentToAddEditTaskFragment(
+                    null
+                )
+            )
+        }
     }
 
     inner class ViewPagerAdapter(fragmentManager: FragmentManager, lifecycle: Lifecycle) :
@@ -66,44 +75,44 @@ class TasksFragment : Fragment(R.layout.fragment_tasks), MenuProvider {
     override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
         menuInflater.inflate(R.menu.menu_main, menu)
 
-      /*  val searchItem = menu.findItem(R.id.action_search)
-        searchView = searchItem.actionView as SearchView
+        /*  val searchItem = menu.findItem(R.id.action_search)
+          searchView = searchItem.actionView as SearchView
 
-        val pendingQuery = viewModel.searchQuery.value
-        if (pendingQuery != null && pendingQuery.isNotEmpty()) {
-            searchItem.expandActionView()
-            searchView.setQuery(pendingQuery, false)
-        }
+          val pendingQuery = viewModel.searchQuery.value
+          if (pendingQuery != null && pendingQuery.isNotEmpty()) {
+              searchItem.expandActionView()
+              searchView.setQuery(pendingQuery, false)
+          }
 
-        searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
-            override fun onQueryTextSubmit(query: String?): Boolean {
-                return false
-            }
+          searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+              override fun onQueryTextSubmit(query: String?): Boolean {
+                  return false
+              }
 
-            override fun onQueryTextChange(newText: String?): Boolean {
-                viewModel.searchQuery.value = newText
-                return true
-            }
-        })*/
+              override fun onQueryTextChange(newText: String?): Boolean {
+                  viewModel.searchQuery.value = newText
+                  return true
+              }
+          })*/
 
-       /* viewLifecycleOwner.lifecycleScope.launch {
-            menu.findItem(R.id.action_hide_completed).isChecked =
-                viewModel.preferenceFlow.first().hideCompleted
-        }*/
+        /* viewLifecycleOwner.lifecycleScope.launch {
+             menu.findItem(R.id.action_hide_completed).isChecked =
+                 viewModel.preferenceFlow.first().hideCompleted
+         }*/
 
     }
 
     override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
         return when (menuItem.itemId) {
-           /* R.id.action_hide_completed -> {
-                menuItem.isChecked = !menuItem.isChecked
-                viewModel.onHideCompletedClick(menuItem.isChecked)
-                true
-            }
-            R.id.action_delete_all_completed -> {
-                deleteAllCompletedTask()
-                true
-            }*/
+            /* R.id.action_hide_completed -> {
+                 menuItem.isChecked = !menuItem.isChecked
+                 viewModel.onHideCompletedClick(menuItem.isChecked)
+                 true
+             }
+             R.id.action_delete_all_completed -> {
+                 deleteAllCompletedTask()
+                 true
+             }*/
             else -> false
         }
     }

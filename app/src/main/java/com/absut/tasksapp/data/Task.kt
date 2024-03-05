@@ -9,8 +9,7 @@ import kotlinx.parcelize.Parcelize
 @Parcelize
 @Entity(tableName = "task_table")
 data class Task(
-    @PrimaryKey(autoGenerate = true)
-    val id: Int = 0,
+    @PrimaryKey(autoGenerate = true) val id: Int = 0,
     val name: String,
     val completed: Boolean = false,
     val dueDate: Long = 0,
@@ -20,5 +19,5 @@ data class Task(
     val formattedDate: String
         get() = DateFormat.getDateInstance().format(createdDate)
 
-    fun formattedDate(date: String) = DateFormat.getDateInstance().format(date)
+    fun formattedDate(date: Long) = DateFormat.getDateInstance().format(date)
 }
