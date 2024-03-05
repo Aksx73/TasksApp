@@ -1,8 +1,8 @@
 package com.absut.tasksapp.ui.tasks
 
+import android.R.attr.button
 import android.os.Bundle
 import android.util.Log
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuInflater
@@ -10,10 +10,11 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.appcompat.widget.SearchView
+import androidx.appcompat.widget.PopupMenu
 import androidx.core.view.MenuHost
 import androidx.core.view.MenuProvider
 import androidx.core.view.isVisible
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.setFragmentResultListener
 import androidx.lifecycle.Lifecycle
@@ -26,7 +27,7 @@ import com.absut.tasksapp.databinding.FragmentTodoTaskBinding
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.launch
+
 
 @AndroidEntryPoint
 class TodoTaskFragment : Fragment(),TaskAdapter.OnItemClickListener, MenuProvider {
@@ -95,23 +96,16 @@ class TodoTaskFragment : Fragment(),TaskAdapter.OnItemClickListener, MenuProvide
 
     override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
         menuInflater.inflate(R.menu.menu_main, menu)
-
-        //todo hide delete all menu item here
-       /* viewLifecycleOwner.lifecycleScope.launch {
-            menu.findItem(R.id.action_hide_completed).isChecked =
-                viewModel.preferenceFlow.first().hideCompleted
-        }*/
-
     }
 
     override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
         return when (menuItem.itemId) {
-            R.id.action_sort -> {
-                Toast.makeText(context, "sort", Toast.LENGTH_SHORT).show()
+            R.id.action_sort_by_due_date -> {
+                //viewModel.onSortOrderSelected(SortOrder.BY_NAME)
                 true
             }
-            R.id.action_delete_all -> {
-                Toast.makeText(context, "delete all", Toast.LENGTH_SHORT).show()
+            R.id.action_sort_by_date_created -> {
+                //viewModel.onSortOrderSelected(SortOrder.BY_DATE)
                 true
             }
             else -> false

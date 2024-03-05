@@ -27,6 +27,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class CompletedTaskFragment : Fragment(),TaskAdapter.OnItemClickListener, MenuProvider {
@@ -76,17 +77,25 @@ class CompletedTaskFragment : Fragment(),TaskAdapter.OnItemClickListener, MenuPr
     override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
         menuInflater.inflate(R.menu.menu_main, menu)
 
-        /* viewLifecycleOwner.lifecycleScope.launch {
-             menu.findItem(R.id.action_hide_completed).isChecked =
-                 viewModel.preferenceFlow.first().hideCompleted
+         /*viewLifecycleOwner.lifecycleScope.launch {
+             menu.findItem(R.id.action_delete_all).isVisible = true
          }*/
 
     }
 
+    override fun onPrepareMenu(menu: Menu) {
+        super.onPrepareMenu(menu)
+        menu.findItem(R.id.action_delete_all).isVisible = true
+    }
+
     override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
         return when (menuItem.itemId) {
-            R.id.action_sort -> {
-                Toast.makeText(context, "sort", Toast.LENGTH_SHORT).show()
+            R.id.action_sort_by_due_date -> {
+                //viewModel.onSortOrderSelected(SortOrder.BY_NAME)
+                true
+            }
+            R.id.action_sort_by_date_created -> {
+                //viewModel.onSortOrderSelected(SortOrder.BY_DATE)
                 true
             }
             R.id.action_delete_all -> {
