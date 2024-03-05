@@ -4,11 +4,18 @@ import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
+import androidx.core.view.MenuHost
+import androidx.core.view.MenuProvider
 import androidx.core.view.isVisible
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.setFragmentResultListener
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -22,7 +29,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 
 @AndroidEntryPoint
-class CompletedTaskFragment : Fragment(),TaskAdapter.OnItemClickListener {
+class CompletedTaskFragment : Fragment(),TaskAdapter.OnItemClickListener, MenuProvider {
 
     private var _binding: FragmentCompletedTaskBinding? = null
     private val binding get() = _binding!!
@@ -40,6 +47,9 @@ class CompletedTaskFragment : Fragment(),TaskAdapter.OnItemClickListener {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        val menuHost: MenuHost = requireActivity()
+        menuHost.addMenuProvider(this, viewLifecycleOwner, Lifecycle.State.RESUMED)
 
         binding.apply{
             recyclerView.apply {
@@ -61,6 +71,30 @@ class CompletedTaskFragment : Fragment(),TaskAdapter.OnItemClickListener {
 
     override fun onCheckBoxClick(task: Task, isChecked: Boolean) {
         viewModel.onTaskCheckedChanged(task, isChecked)
+    }
+
+    override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+        menuInflater.inflate(R.menu.menu_main, menu)
+
+        /* viewLifecycleOwner.lifecycleScope.launch {
+             menu.findItem(R.id.action_hide_completed).isChecked =
+                 viewModel.preferenceFlow.first().hideCompleted
+         }*/
+
+    }
+
+    override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+        return when (menuItem.itemId) {
+            R.id.action_sort -> {
+                Toast.makeText(context, "sort", Toast.LENGTH_SHORT).show()
+                true
+            }
+            R.id.action_delete_all -> {
+                Toast.makeText(context, "delete all", Toast.LENGTH_SHORT).show()
+                true
+            }
+            else -> false
+        }
     }
 
     private fun deleteAllCompletedTask() {

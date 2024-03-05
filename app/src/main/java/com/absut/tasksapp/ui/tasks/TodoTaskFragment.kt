@@ -96,6 +96,7 @@ class TodoTaskFragment : Fragment(),TaskAdapter.OnItemClickListener, MenuProvide
     override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
         menuInflater.inflate(R.menu.menu_main, menu)
 
+        //todo hide delete all menu item here
        /* viewLifecycleOwner.lifecycleScope.launch {
             menu.findItem(R.id.action_hide_completed).isChecked =
                 viewModel.preferenceFlow.first().hideCompleted
