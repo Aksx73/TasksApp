@@ -18,17 +18,21 @@ import androidx.fragment.app.setFragmentResult
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.absut.tasksapp.R
 import com.absut.tasksapp.databinding.FragmentAddEditBinding
 import com.absut.tasksapp.databinding.FragmentTodoTaskBinding
 import com.absut.tasksapp.ui.tasks.TaskViewModel
+import com.absut.tasksapp.util.Util.formattedDate
 import com.absut.tasksapp.util.Util.showSnackbarWithAnchor
 import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 import java.text.DateFormat
 
 @AndroidEntryPoint
@@ -66,49 +70,56 @@ class AddEditFragment : Fragment(), MenuProvider {
                 cbCompleted.isChecked = task.completed == true
                 txtAddDate.isVisible = task.dueDate.toInt() == 0
                 chipDate.isVisible = task.dueDate.toInt() != 0
-                chipDate.text = task.formattedDate(task.dueDate)
+                chipDate.text = task.dueDate.formattedDate()
             }
         }
 
-        binding.lytAddDate.setOnClickListener {
-            showDatePicker()
-        }
-
-        binding.chipDate.setOnClickListener {
-            showDatePicker(selectedDueDate)
-        }
-
-        binding.chipDate.setOnCloseIconClickListener {
-            selectedDueDate = 0
-            binding.txtAddDate.isVisible = true
-            binding.chipDate.isVisible = false
-        }
-
-        binding.fabSave.setOnClickListener {
-            if (binding.etTask.text.isNullOrBlank()) {
-                it.showSnackbarWithAnchor("Task cannot be empty")
-            } else {
-                viewModel.onSaveClick(
-                    title = binding.etTask.text.toString(),
-                    isCompleted = binding.cbCompleted.isChecked,
-                    dueDate = selectedDueDate
-                )
-            }
-        }
-
+        clickListener()
         observeEvents()
     }
 
+    private fun clickListener() {
+        binding.apply {
+            lytAddDate.setOnClickListener {
+                showDatePicker()
+            }
+
+            chipDate.setOnClickListener {
+                showDatePicker(selectedDueDate)
+            }
+
+            chipDate.setOnCloseIconClickListener {
+                selectedDueDate = 0
+                binding.txtAddDate.isVisible = true
+                binding.chipDate.isVisible = false
+            }
+
+            fabSave.setOnClickListener {
+                if (binding.etTask.text.isNullOrBlank()) {
+                    it.showSnackbarWithAnchor("Task cannot be empty")
+                } else {
+                    viewModel.onSaveClick(
+                        title = binding.etTask.text.toString(),
+                        isCompleted = binding.cbCompleted.isChecked,
+                        dueDate = selectedDueDate
+                    )
+                }
+            }
+        }
+    }
+
     private fun observeEvents() {
-        lifecycleScope.launchWhenStarted {
-            viewModel.addEditTaskEvent.collect { event ->
-                when (event) {
-                    is AddEditViewModel.AddEditTaskEvent.NavigateBackWithResult -> {
-                        setFragmentResult(
-                            "add_edit_request",
-                            bundleOf("add_edit_result" to event.result)
-                        )
-                        findNavController().popBackStack()
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.addEditTaskEvent.collect { event ->
+                    when (event) {
+                        is AddEditViewModel.AddEditTaskEvent.NavigateBackWithResult -> {
+                            setFragmentResult(
+                                "add_edit_request",
+                                bundleOf("add_edit_result" to event.result)
+                            )
+                            findNavController().popBackStack()
+                        }
                     }
                 }
             }
@@ -130,7 +141,6 @@ class AddEditFragment : Fragment(), MenuProvider {
                 deleteTaskDialog()
                 true
             }
-
             else -> false
         }
     }
@@ -153,7 +163,6 @@ class AddEditFragment : Fragment(), MenuProvider {
             .build()
 
         datePicker.addOnPositiveButtonClickListener {
-            // Respond to positive button click.\
             selectedDueDate = it
             binding.txtAddDate.isVisible = false
             binding.chipDate.isVisible = true
@@ -166,10 +175,6 @@ class AddEditFragment : Fragment(), MenuProvider {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
-    }
-
-    companion object {
-
     }
 
 }

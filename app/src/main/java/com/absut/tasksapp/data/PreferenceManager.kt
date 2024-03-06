@@ -1,10 +1,12 @@
 package com.absut.tasksapp.data
 
-import android.app.Application
 import android.content.Context
 import android.util.Log
 import androidx.datastore.core.DataStore
-import androidx.datastore.preferences.core.*
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.emptyPreferences
+import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
@@ -26,7 +28,7 @@ class PreferenceManager @Inject constructor(@ApplicationContext context: Context
 
     val sortOrderFlow: Flow<SortOrder> = dataStore.data
         .map { preferences ->
-             SortOrder.valueOf(preferences[SORT_ORDER] ?: SortOrder.BY_CREATED_DATE.name)
+            SortOrder.valueOf(preferences[SORT_ORDER] ?: SortOrder.BY_CREATED_DATE.name)
         }
         .catch { exception ->
             if (exception is IOException) {

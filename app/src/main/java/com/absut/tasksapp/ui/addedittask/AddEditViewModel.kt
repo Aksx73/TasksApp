@@ -1,6 +1,5 @@
 package com.absut.tasksapp.ui.addedittask
 
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.absut.tasksapp.data.Task
@@ -23,7 +22,6 @@ class AddEditViewModel @Inject constructor(
     val addEditTaskEvent: SharedFlow<AddEditTaskEvent> = _addEditTaskEvent
 
     var task: Task? = null
-
 
     fun onSaveClick(title: String, isCompleted: Boolean, dueDate: Long = 0) {
         if (task != null) {

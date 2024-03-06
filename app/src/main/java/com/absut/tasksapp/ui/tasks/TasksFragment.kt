@@ -2,30 +2,19 @@ package com.absut.tasksapp.ui.tasks
 
 import android.os.Bundle
 import android.util.Log
-import androidx.fragment.app.Fragment
-import android.view.LayoutInflater
-import android.view.Menu
-import android.view.MenuInflater
-import android.view.MenuItem
 import android.view.View
-import android.view.ViewGroup
-import androidx.appcompat.widget.SearchView
-import androidx.core.view.MenuHost
-import androidx.core.view.MenuProvider
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.setFragmentResultListener
 import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.absut.tasksapp.R
 import com.absut.tasksapp.databinding.FragmentTasksBinding
 import com.absut.tasksapp.util.Constants
 import com.absut.tasksapp.util.Util.showSnackbarWithAnchor
-import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.tabs.TabLayoutMediator
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class TasksFragment : Fragment(R.layout.fragment_tasks) {
@@ -52,9 +41,7 @@ class TasksFragment : Fragment(R.layout.fragment_tasks) {
 
         binding.fabAdd.setOnClickListener {
             findNavController().navigate(
-                TasksFragmentDirections.actionTaskFragmentToAddEditTaskFragment(
-                    null
-                )
+                TasksFragmentDirections.actionTaskFragmentToAddEditTaskFragment(null)
             )
         }
 

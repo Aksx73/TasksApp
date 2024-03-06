@@ -21,13 +21,12 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun providesDatabase(app: Application, callback: TaskDatabase.Callback): TaskDatabase {
+    fun providesDatabase(app: Application): TaskDatabase {
         return Room.databaseBuilder(
             app,
             TaskDatabase::class.java,
             "task_db"
         ).fallbackToDestructiveMigration()
-            .addCallback(callback)
             .build()
     }
 
@@ -43,12 +42,5 @@ object AppModule {
         return TaskRepositoryImpl(taskDao)
     }
 
-    @ApplicationScope
-    @Provides
-    @Singleton
-    fun provideApplicationScope() = CoroutineScope(SupervisorJob())
 }
 
-@Retention(AnnotationRetention.RUNTIME)
-@Qualifier
-annotation class ApplicationScope

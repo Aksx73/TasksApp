@@ -5,7 +5,6 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface TaskDao {
-
     fun getTasks(sortOrder: SortOrder, completed: Boolean): Flow<List<Task>> {
         return when (sortOrder) {
             SortOrder.BY_DUE_DATE -> getTaskSortedByDueDate(completed)

@@ -3,7 +3,6 @@ package com.absut.tasksapp.data
 import android.os.Parcelable
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import java.text.DateFormat
 import kotlinx.parcelize.Parcelize
 
 @Parcelize
@@ -15,9 +14,4 @@ data class Task(
     val dueDate: Long = 0,
     val createdDate: Long = System.currentTimeMillis(),
     val completedDate: Long = 0
-) : Parcelable {
-    val formattedDate: String
-        get() = DateFormat.getDateInstance().format(createdDate)
-
-    fun formattedDate(date: Long) = DateFormat.getDateInstance().format(date)
-}
+) : Parcelable

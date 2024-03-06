@@ -11,9 +11,7 @@ class TaskRepositoryImpl @Inject constructor(private val taskDao: TaskDao) : Tas
     override fun getTasks(
         sortOrder: SortOrder,
         completed: Boolean
-    ): Flow<List<Task>> {
-        return taskDao.getTasks(sortOrder,completed)
-    }
+    ): Flow<List<Task>> = taskDao.getTasks(sortOrder, completed)
 
     override suspend fun updateTask(task: Task) = taskDao.update(task)
 

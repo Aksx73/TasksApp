@@ -8,7 +8,7 @@
     <fragment
         android:id="@+id/TaskFragment"
         android:name="com.absut.tasksapp.ui.tasks.TasksFragment"
-        android:label="My Tasks"
+        android:label="Tasks"
         tools:layout="@layout/fragment_tasks">
 
         <action
@@ -22,8 +22,8 @@
         tools:layout="@layout/fragment_add_edit">
         <argument
             android:name="task"
+            android:defaultValue="@null"
             app:argType="com.absut.tasksapp.data.Task"
-            app:nullable="true"
-            android:defaultValue="@null" />
+            app:nullable="true" />
     </fragment>
 </navigation>

@@ -8,6 +8,7 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.absut.tasksapp.data.Task
 import com.absut.tasksapp.databinding.TaskListItemBinding
+import com.absut.tasksapp.util.Util.formattedDate
 
 class TaskAdapter(
     private val listener: OnItemClickListener
@@ -36,7 +37,7 @@ class TaskAdapter(
                     }
                 }
 
-                checkbox.setOnCheckedChangeListener { compoundButton, b ->
+                checkbox.setOnCheckedChangeListener { _, b ->
                     val position = adapterPosition
                     if (position != RecyclerView.NO_POSITION) {
                         val task = getItem(position)
@@ -49,15 +50,13 @@ class TaskAdapter(
         fun bind(task: Task) {
             binding.apply {
                 checkbox.isChecked = task.completed
-                //chipDate.isVisible = !task.completed
-
                 txtTitle.text = task.name
                 txtTitle.paint.isStrikeThruText = task.completed
 
                 if (!task.completed) {
                     if (task.dueDate.toInt() != 0) {
                         chipDate.isVisible = true
-                        chipDate.text = task.formattedDate(task.dueDate)
+                        chipDate.text = task.dueDate.formattedDate()
                     } else chipDate.isVisible = false
                 } else chipDate.isVisible = false
 
