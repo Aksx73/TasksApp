@@ -17,7 +17,7 @@ interface TaskDao {
     @Query("SELECT * FROM task_table WHERE completed == :completed ORDER BY createdDate DESC")
     fun getTaskSortedByCreatedDate(completed: Boolean): Flow<List<Task>>
 
-    @Query("SELECT * FROM task_table WHERE completed == :completed ORDER BY dueDate DESC")
+    @Query("SELECT * FROM task_table WHERE completed == :completed ORDER BY CASE WHEN dueDate = 0 THEN createdDate ELSE dueDate END")
     fun getTaskSortedByDueDate(completed: Boolean): Flow<List<Task>>
 
     @Query("SELECT * FROM task_table WHERE completed == :completed ORDER BY completedDate DESC")

@@ -28,6 +28,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="No tasks"
+            android:drawablePadding="12dp"
             app:drawableTopCompat="@drawable/ic_article_24" />
     </LinearLayout>
 

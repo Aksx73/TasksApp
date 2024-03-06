@@ -26,6 +26,7 @@ import com.absut.tasksapp.databinding.FragmentTodoTaskBinding
 import com.absut.tasksapp.ui.tasks.TaskViewModel
 import com.absut.tasksapp.util.Util.showSnackbarWithAnchor
 import com.google.android.material.datepicker.MaterialDatePicker
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import java.text.DateFormat
@@ -89,7 +90,7 @@ class AddEditFragment : Fragment(), MenuProvider {
             } else {
                 viewModel.onSaveClick(
                     title = binding.etTask.text.toString(),
-                    completed = binding.cbCompleted.isChecked,
+                    isCompleted = binding.cbCompleted.isChecked,
                     dueDate = selectedDueDate
                 )
             }
@@ -118,14 +119,31 @@ class AddEditFragment : Fragment(), MenuProvider {
         menuInflater.inflate(R.menu.menu_delete, menu)
     }
 
+    override fun onPrepareMenu(menu: Menu) {
+        super.onPrepareMenu(menu)
+        menu.findItem(R.id.action_delete).isVisible = viewModel.task != null
+    }
+
     override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
         return when (menuItem.itemId) {
             R.id.action_delete -> {
-                Toast.makeText(context, "delete", Toast.LENGTH_SHORT).show()
+                deleteTaskDialog()
                 true
             }
+
             else -> false
         }
+    }
+
+    private fun deleteTaskDialog() {
+        MaterialAlertDialogBuilder(requireActivity())
+            .setTitle("Delete this task?")
+            .setMessage("This action cannot be undone")
+            .setPositiveButton("Delete") { _, _ ->
+                viewModel.deleteTask()
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
     }
 
     private fun showDatePicker(selectedDate: Long = 0) {

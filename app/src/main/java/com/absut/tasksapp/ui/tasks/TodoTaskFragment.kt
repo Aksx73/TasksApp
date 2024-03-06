@@ -22,6 +22,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.absut.tasksapp.R
+import com.absut.tasksapp.data.SortOrder
 import com.absut.tasksapp.data.Task
 import com.absut.tasksapp.databinding.FragmentTodoTaskBinding
 import com.google.android.material.snackbar.Snackbar
@@ -30,7 +31,7 @@ import kotlinx.coroutines.flow.collectLatest
 
 
 @AndroidEntryPoint
-class TodoTaskFragment : Fragment(),TaskAdapter.OnItemClickListener, MenuProvider {
+class TodoTaskFragment : Fragment(), TaskAdapter.OnItemClickListener, MenuProvider {
 
     private var _binding: FragmentTodoTaskBinding? = null
     private val binding get() = _binding!!
@@ -41,7 +42,11 @@ class TodoTaskFragment : Fragment(),TaskAdapter.OnItemClickListener, MenuProvide
         TaskAdapter(this)
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
         _binding = FragmentTodoTaskBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -52,7 +57,7 @@ class TodoTaskFragment : Fragment(),TaskAdapter.OnItemClickListener, MenuProvide
         val menuHost: MenuHost = requireActivity()
         menuHost.addMenuProvider(this, viewLifecycleOwner, Lifecycle.State.RESUMED)
 
-        binding.apply{
+        binding.apply {
             recyclerView.apply {
                 adapter = taskAdapter
                 layoutManager = LinearLayoutManager(requireContext())
@@ -75,7 +80,7 @@ class TodoTaskFragment : Fragment(),TaskAdapter.OnItemClickListener, MenuProvide
         observeEvents()
     }
 
-    private fun observeEvents(){
+    private fun observeEvents() {
         viewLifecycleOwner.lifecycleScope.launchWhenStarted {
             viewModel.tasksEvent.collectLatest { event ->
                 when (event) {
@@ -83,6 +88,7 @@ class TodoTaskFragment : Fragment(),TaskAdapter.OnItemClickListener, MenuProvide
                         Snackbar.make(requireView(), event.msg, Snackbar.LENGTH_SHORT).show()
                         Log.d("TAG", "observeEvents: ${event.msg}")
                     }
+
                     is TaskViewModel.TasksEvent.ShowUndoDeleteTaskMessage -> {
                         Snackbar.make(requireView(), "Task deleted", Snackbar.LENGTH_LONG)
                             .setAction("Undo") {
@@ -101,13 +107,15 @@ class TodoTaskFragment : Fragment(),TaskAdapter.OnItemClickListener, MenuProvide
     override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
         return when (menuItem.itemId) {
             R.id.action_sort_by_due_date -> {
-                //viewModel.onSortOrderSelected(SortOrder.BY_NAME)
+                viewModel.onSortOrderSelected(SortOrder.BY_DUE_DATE)
                 true
             }
+
             R.id.action_sort_by_date_created -> {
-                //viewModel.onSortOrderSelected(SortOrder.BY_DATE)
+                viewModel.onSortOrderSelected(SortOrder.BY_CREATED_DATE)
                 true
             }
+
             else -> false
         }
     }

@@ -68,6 +68,9 @@ class TasksFragment : Fragment(R.layout.fragment_tasks) {
                 Constants.EDIT_TASK_RESULT_OK -> {
                     binding.fabAdd.showSnackbarWithAnchor("Task updated")
                 }
+                Constants.DELETE_TASK_RESULT_OK -> {
+                    binding.fabAdd.showSnackbarWithAnchor("Task deleted")
+                }
             }
         }
     }

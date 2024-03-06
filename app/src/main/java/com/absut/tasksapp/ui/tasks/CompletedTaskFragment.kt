@@ -30,7 +30,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
-class CompletedTaskFragment : Fragment(),TaskAdapter.OnItemClickListener, MenuProvider {
+class CompletedTaskFragment : Fragment(), TaskAdapter.OnItemClickListener, MenuProvider {
 
     private var _binding: FragmentCompletedTaskBinding? = null
     private val binding get() = _binding!!
@@ -41,7 +41,11 @@ class CompletedTaskFragment : Fragment(),TaskAdapter.OnItemClickListener, MenuPr
         TaskAdapter(this)
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
         _binding = FragmentCompletedTaskBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -52,7 +56,7 @@ class CompletedTaskFragment : Fragment(),TaskAdapter.OnItemClickListener, MenuPr
         val menuHost: MenuHost = requireActivity()
         menuHost.addMenuProvider(this, viewLifecycleOwner, Lifecycle.State.RESUMED)
 
-        binding.apply{
+        binding.apply {
             recyclerView.apply {
                 adapter = taskAdapter
                 layoutManager = LinearLayoutManager(requireContext())
@@ -77,31 +81,25 @@ class CompletedTaskFragment : Fragment(),TaskAdapter.OnItemClickListener, MenuPr
     override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
         menuInflater.inflate(R.menu.menu_main, menu)
 
-         /*viewLifecycleOwner.lifecycleScope.launch {
-             menu.findItem(R.id.action_delete_all).isVisible = true
-         }*/
+        /*viewLifecycleOwner.lifecycleScope.launch {
+            menu.findItem(R.id.action_delete_all).isVisible = true
+        }*/
 
     }
 
     override fun onPrepareMenu(menu: Menu) {
         super.onPrepareMenu(menu)
+        menu.findItem(R.id.action_sort).isVisible = false
         menu.findItem(R.id.action_delete_all).isVisible = true
     }
 
     override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
         return when (menuItem.itemId) {
-            R.id.action_sort_by_due_date -> {
-                //viewModel.onSortOrderSelected(SortOrder.BY_NAME)
-                true
-            }
-            R.id.action_sort_by_date_created -> {
-                //viewModel.onSortOrderSelected(SortOrder.BY_DATE)
-                true
-            }
             R.id.action_delete_all -> {
-                Toast.makeText(context, "delete all", Toast.LENGTH_SHORT).show()
+                deleteAllCompletedTask()
                 true
             }
+
             else -> false
         }
     }

@@ -31,9 +31,7 @@ class TaskViewModel @Inject constructor(
         taskRepository.getTasks(sortOrder, false)
     }
 
-    private val completedTaskFlow = sortOrderFlow.flatMapLatest { sortOrder ->
-        taskRepository.getTasks(sortOrder, true)
-    }
+    private val completedTaskFlow = taskRepository.getTasks(SortOrder.BY_COMPLETED_DATE, true)
 
     val tasks = taskFlow.asLiveData()
     val completedTasks = completedTaskFlow.asLiveData()
