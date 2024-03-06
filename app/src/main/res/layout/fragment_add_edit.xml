@@ -14,6 +14,10 @@
         android:hint="New task"
         android:inputType="textCapSentences|textMultiLine"
         android:padding="16dp"
+        android:scrollbars="vertical"
+        android:fadingEdge="vertical"
+        android:requiresFadingEdge="vertical"
+        android:maxLines="15"
         android:textAppearance="?textAppearanceHeadline5"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -53,7 +57,7 @@
             android:layout_marginStart="16dp"
             android:paddingVertical="0dp"
             android:text="Wed, 24 May"
-            android:visibility="visible"
+            android:visibility="gone"
             app:closeIcon="@drawable/ic_close_24"
             app:closeIconEnabled="true" />
     </LinearLayout>

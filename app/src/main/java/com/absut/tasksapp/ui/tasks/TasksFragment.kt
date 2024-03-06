@@ -21,6 +21,7 @@ import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.absut.tasksapp.R
 import com.absut.tasksapp.databinding.FragmentTasksBinding
 import com.absut.tasksapp.util.Constants
+import com.absut.tasksapp.util.Util.showSnackbarWithAnchor
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.tabs.TabLayoutMediator
 import dagger.hilt.android.AndroidEntryPoint
@@ -62,10 +63,10 @@ class TasksFragment : Fragment(R.layout.fragment_tasks) {
             Log.d("TAG", "onViewCreated: $result")
             when(result){
                 Constants.ADD_TASK_RESULT_OK -> {
-                    Snackbar.make(binding.fabAdd,"Task added",Snackbar.LENGTH_SHORT).show()
+                    binding.fabAdd.showSnackbarWithAnchor("Task added")
                 }
                 Constants.EDIT_TASK_RESULT_OK -> {
-                    Snackbar.make(binding.fabAdd,"Task updated",Snackbar.LENGTH_SHORT).show()
+                    binding.fabAdd.showSnackbarWithAnchor("Task updated")
                 }
             }
         }
