@@ -6,6 +6,7 @@ plugins {
     id("androidx.navigation.safeargs.kotlin")
     id("kotlin-parcelize")
     id("com.google.devtools.ksp")
+    id("org.jetbrains.kotlin.plugin.compose")
 }
 
 android {
@@ -43,7 +44,14 @@ android {
 
     buildFeatures {
         viewBinding = true
+        compose = true
     }
+
+    composeCompiler {
+        reportsDestination = layout.buildDirectory.dir("compose_compiler")
+        stabilityConfigurationFile = rootProject.layout.projectDirectory.file("stability_config.conf")
+    }
+
 }
 
 dependencies {
@@ -67,6 +75,13 @@ dependencies {
     //Coroutines
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1")
+    //compose
+    implementation("androidx.compose.ui:ui:1.7.5") // UI elements and basic layouts
+    implementation("androidx.compose.ui:ui-graphics:1.7.5") // Graphics and drawing
+    implementation("androidx.compose.ui:ui-tooling-preview:1.7.5") // Preview support
+    debugImplementation("androidx.compose.ui:ui-tooling:1.7.5") // Debugging tools
+    implementation("androidx.compose.material3:material3:1.3.1") // Material Design 3 components
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.7") //Integration with ViewModels
 
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.2.1")
