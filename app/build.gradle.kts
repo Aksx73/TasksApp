@@ -75,6 +75,8 @@ dependencies {
     //Coroutines
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1")
+    //work manager
+    implementation("androidx.work:work-runtime-ktx:2.10.0")
     //compose
     implementation("androidx.compose.ui:ui:1.7.5") // UI elements and basic layouts
     implementation("androidx.compose.ui:ui-graphics:1.7.5") // Graphics and drawing
