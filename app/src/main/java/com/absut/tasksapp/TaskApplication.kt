@@ -17,16 +17,20 @@ class TaskApplication : Application(){
 
     private fun createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val name = "Timed tasks"
-            val descriptionText = "channel for all timed tasks"
             val importance = NotificationManager.IMPORTANCE_DEFAULT
-            val channel = NotificationChannel("timed_tasks", name, importance).apply {
-                description = descriptionText
+            val channel = NotificationChannel(CHANNEL_ID, CHANNEL_NAME, importance).apply {
+                description = CHANNEL_DESCRIPTION
             }
             // Register the channel with the system
             val notificationManager: NotificationManager =
                 getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
             notificationManager.createNotificationChannel(channel)
         }
+    }
+
+    companion object {
+        const val CHANNEL_NAME = "Timed tasks"
+        const val CHANNEL_DESCRIPTION = "channel for all timed tasks"
+        const val CHANNEL_ID = "channel_timed_tasks"
     }
 }
