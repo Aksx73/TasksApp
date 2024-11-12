@@ -24,7 +24,7 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <LinearLayout
-        android:id="@+id/lytAddDate"
+        android:id="@+id/lytAddDetails"
         android:layout_width="match_parent"
         android:layout_height="48dp"
         android:animateLayoutChanges="true"
@@ -40,6 +40,33 @@
         <ImageView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:src="@drawable/ic_notes_24" />
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="16dp"
+            android:background="@android:color/transparent"
+            android:inputType="textCapSentences|textMultiLine"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/lytAddDate"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:animateLayoutChanges="true"
+        android:background="?selectableItemBackground"
+        android:clickable="true"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingHorizontal="16dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/lytAddDetails">
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:src="@drawable/ic_clock_24" />
 
         <TextView
@@ -47,7 +74,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
-            android:text="Add date" />
+            android:textAppearance="?textAppearanceBodyMedium"
+            android:textColor="?android:attr/textColorSecondary"
+            android:text="Add date/time" />
 
         <com.google.android.material.chip.Chip
             android:id="@+id/chipDate"
