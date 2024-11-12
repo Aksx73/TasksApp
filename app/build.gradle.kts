@@ -11,12 +11,12 @@ plugins {
 
 android {
     namespace = "com.absut.tasksapp"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.absut.tasksapp"
         minSdk = 24
-        targetSdk = 34
+        targetSdk = 35
         versionCode = 1
         versionName = "1.0"
 
