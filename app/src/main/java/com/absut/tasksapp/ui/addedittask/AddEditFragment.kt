@@ -82,6 +82,7 @@ class AddEditFragment : Fragment(), MenuProvider {
         binding.apply {
             lytAddDate.setOnClickListener {
                 showDatePicker()
+                //todo show time picker after date picker
             }
 
             chipDate.setOnClickListener {
