@@ -26,6 +26,8 @@ object Util {
     /**
      * input -> date timestamp
      * output -> Date string in format (Sun, 17 Nov) , (Mon, 1 Dec, 2025)
+     * input -> if @enableTenseBasedDayFormat is true then for today, tomorrow, yesterday is returned
+     * and regular date format for other case
      * */
     fun Long.toFormattedDateString(enableTenseBasedDayFormat: Boolean): String {
         val calendar = Calendar.getInstance()
@@ -73,6 +75,9 @@ object Util {
         }
     }
 
+    /**
+     * To check if given timestamp is of today
+     * */
     fun Long.today(): Boolean {
         val calendar = Calendar.getInstance()
         calendar.timeInMillis = this
@@ -84,6 +89,7 @@ object Util {
     /**
      * input hours -> [0, 23] , minutes -> [0:60]
      * get time in format of 12:00 am, 1:15 pm, 4:04 pm
+     * if @trimZeroMinutes is true the when minutes are 0 then it is trimmed (for 12:00 pm -> 12 pm is returned)
      * */
     fun getFormattedTime(
         hours: Int = 0,
@@ -100,7 +106,7 @@ object Util {
                 }
                 return time.format(formatter)
             } else {
-                val formattedMinutes = String.format("%02d", minutes)
+                val formattedMinutes = String.format(Locale.getDefault(),"%02d", minutes)
                 val formattedHours = (hours % 12).takeIf { it != 0 } ?: 12
                 val amPm = if (hours >= 12) "pm" else "am"
                 return if (trimZeroMinutes && formattedMinutes == "00") {
@@ -114,6 +120,10 @@ object Util {
         }
     }
 
+    /**
+     * Convert given UTC zone timestamp to current local timezone timestamp
+     * Required in MaterialDatePicker as returned selected date follows UTC timezone
+     * */
     fun Long.convertUtcToLocalMidnight(): Long {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val instant = Instant.ofEpochMilli(this)
@@ -138,13 +148,16 @@ object Util {
         }
     }
 
+    /**
+     * Return timestamp if today's date at 00:00 (12:00 am / midnight / start of the day)
+     * */
     fun getTodayMidnightTimestamp(): Long {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val today = LocalDate.now() // Get today's date
             val localZoneId = ZoneId.systemDefault() // Get the system's default time zone
             val midnight = today.atStartOfDay(localZoneId) // Get midnight in local time zone
             return midnight.toInstant().toEpochMilli() // Convert to timestamp
-        }else{
+        } else {
             val calendar = Calendar.getInstance()
             calendar.timeZone = TimeZone.getDefault() // Set to local time zone
             calendar.set(Calendar.HOUR_OF_DAY, 0)
@@ -155,6 +168,11 @@ object Util {
         }
     }
 
+    /**
+     * Convert current local timezone timestamp to UTC zone timestamp
+     * Required in MaterialDatePicker for default initial date selection
+     * as it only take timestamp in UTC timezone
+     * */
     fun Long.convertLocalToUtc(): Long {
         val calendar = Calendar.getInstance()
         calendar.timeInMillis = this
