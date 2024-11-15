@@ -13,7 +13,11 @@
 
         <action
             android:id="@+id/action_TaskFragment_to_AddEditTaskFragment"
-            app:destination="@id/AddEditTaskFragment"/>
+            app:destination="@id/AddEditTaskFragment"
+            app:enterAnim="@anim/fragment_fade_enter"
+            app:exitAnim="@anim/fragment_fade_exit"
+            app:popEnterAnim="@anim/fragment_fade_enter"
+            app:popExitAnim="@anim/fragment_fade_exit" />
            <!-- app:enterAnim="@anim/slide_in_right"
             app:exitAnim="@anim/slide_out_left"
             app:popEnterAnim="@android:anim/slide_in_left"
