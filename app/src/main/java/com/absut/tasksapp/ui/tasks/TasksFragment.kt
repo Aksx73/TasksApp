@@ -3,6 +3,7 @@ package com.absut.tasksapp.ui.tasks
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.setFragmentResultListener
@@ -20,8 +21,13 @@ import dagger.hilt.android.AndroidEntryPoint
 class TasksFragment : Fragment(R.layout.fragment_tasks) {
 
     private val tabTitleArray = arrayOf(
-        "TODO",
+        "Todo",
         "Completed"
+    )
+
+    private val tabIconArray = arrayOf(
+        R.drawable.ic_task_pending_24,
+        R.drawable.ic_task_completed_24
     )
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -37,6 +43,7 @@ class TasksFragment : Fragment(R.layout.fragment_tasks) {
 
         TabLayoutMediator(tabLayout, viewPager) { tab, position ->
             tab.text = tabTitleArray[position]
+            tab.icon = ResourcesCompat.getDrawable(resources,tabIconArray[position],null)
         }.attach()
 
         binding.fabAdd.setOnClickListener {

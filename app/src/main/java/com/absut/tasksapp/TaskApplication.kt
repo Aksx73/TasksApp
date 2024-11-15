@@ -1,11 +1,15 @@
 package com.absut.tasksapp
 
 import android.app.Application
-import android.app.NotificationChannel
-import android.app.NotificationManager
-import android.content.Context
-import android.os.Build
+import com.google.android.material.color.DynamicColors
 import dagger.hilt.android.HiltAndroidApp
 
 @HiltAndroidApp
-class TaskApplication : Application()
+class TaskApplication : Application(){
+
+	override fun onCreate() {
+		super.onCreate()
+		DynamicColors.applyToActivitiesIfAvailable(this)
+	}
+
+}
