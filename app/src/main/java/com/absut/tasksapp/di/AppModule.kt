@@ -2,6 +2,8 @@ package com.absut.tasksapp.di
 
 import android.app.Application
 import androidx.room.Room
+import com.absut.tasksapp.data.MIGRATION_1_2
+import com.absut.tasksapp.data.MIGRATION_2_3
 import com.absut.tasksapp.data.TaskDao
 import com.absut.tasksapp.data.TaskDatabase
 import com.absut.tasksapp.data.TaskRepository
@@ -19,28 +21,30 @@ import javax.inject.Singleton
 @Module
 object AppModule {
 
-    @Provides
-    @Singleton
-    fun providesDatabase(app: Application): TaskDatabase {
-        return Room.databaseBuilder(
-            app,
-            TaskDatabase::class.java,
-            "task_db"
-        ).fallbackToDestructiveMigration()
-            .build()
-    }
+	@Provides
+	@Singleton
+	fun providesDatabase(app: Application): TaskDatabase {
+		return Room.databaseBuilder(
+			app,
+			TaskDatabase::class.java,
+			"task_db"
+		)
+			.addMigrations(MIGRATION_1_2)
+			.addMigrations(MIGRATION_2_3)
+			.build()
+	}
 
-    @Provides
-    @Singleton
-    fun providesTaskDao(db: TaskDatabase): TaskDao {
-        return db.taskDao()
-    }
+	@Provides
+	@Singleton
+	fun providesTaskDao(db: TaskDatabase): TaskDao {
+		return db.taskDao()
+	}
 
-    @Provides
-    @Singleton
-    fun provideTaskRepository(taskDao: TaskDao): TaskRepository {
-        return TaskRepositoryImpl(taskDao)
-    }
+	@Provides
+	@Singleton
+	fun provideTaskRepository(taskDao: TaskDao): TaskRepository {
+		return TaskRepositoryImpl(taskDao)
+	}
 
 }
 
