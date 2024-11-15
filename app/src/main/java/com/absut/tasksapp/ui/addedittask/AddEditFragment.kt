@@ -1,19 +1,19 @@
 package com.absut.tasksapp.ui.addedittask
 
+import android.graphics.Paint.STRIKE_THRU_TEXT_FLAG
+import android.os.Build
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.core.os.bundleOf
 import androidx.core.view.MenuHost
 import androidx.core.view.MenuProvider
 import androidx.core.view.isVisible
-import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResult
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
@@ -23,17 +23,23 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.absut.tasksapp.R
 import com.absut.tasksapp.databinding.FragmentAddEditBinding
-import com.absut.tasksapp.databinding.FragmentTodoTaskBinding
-import com.absut.tasksapp.ui.tasks.TaskViewModel
-import com.absut.tasksapp.util.Util.formattedDate
+import com.absut.tasksapp.util.Util.convertLocalToUtc
+import com.absut.tasksapp.util.Util.convertUtcToLocalMidnight
+import com.absut.tasksapp.util.Util.getFormattedTime
+import com.absut.tasksapp.util.Util.getTodayMidnightTimestamp
 import com.absut.tasksapp.util.Util.showSnackbarWithAnchor
+import com.absut.tasksapp.util.Util.toFormattedDateString
 import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.google.android.material.snackbar.Snackbar
+import com.google.android.material.timepicker.MaterialTimePicker
+import com.google.android.material.timepicker.TimeFormat
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import java.text.DateFormat
+import kotlinx.datetime.Clock
+import kotlinx.datetime.Instant
+import java.time.ZoneId
+import java.time.ZonedDateTime
+
 
 @AndroidEntryPoint
 class AddEditFragment : Fragment(), MenuProvider {
@@ -44,7 +50,9 @@ class AddEditFragment : Fragment(), MenuProvider {
     private val viewModel by viewModels<AddEditViewModel>()
     private val args: AddEditFragmentArgs by navArgs()
 
-    private var selectedDueDate: Long = 0
+    private var selectedDueDate: Long = 0L
+    private var selectedDueMinute: Int = -1
+    private var selectedDueHour: Int = -1
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -59,7 +67,7 @@ class AddEditFragment : Fragment(), MenuProvider {
         super.onViewCreated(view, savedInstanceState)
 
         viewModel.task = args.task
-        selectedDueDate = args.task?.dueDate ?: 0
+        selectedDueDate = args.task?.dueDate ?: 0L
 
         val menuHost: MenuHost = requireActivity()
         menuHost.addMenuProvider(this, viewLifecycleOwner, Lifecycle.State.RESUMED)
@@ -68,9 +76,19 @@ class AddEditFragment : Fragment(), MenuProvider {
             binding.apply {
                 etTask.setText(task.name)
                 cbCompleted.isChecked = task.completed == true
-                txtAddDate.isVisible = task.dueDate.toInt() == 0
-                chipDate.isVisible = task.dueDate.toInt() != 0
-                chipDate.text = task.dueDate.formattedDate()
+                etDesc.setText(task.desc)
+                etTask.paint.isStrikeThruText = cbCompleted.isChecked
+
+                txtAddDate.isVisible = task.dueDate == 0L
+                chipDate.isVisible = task.dueDate != 0L
+                chipDate.text = task.dueDate.toFormattedDateString(false)
+
+                selectedDueHour = task.dueTime.first
+                selectedDueMinute = task.dueTime.second
+
+                txtAddTime.isVisible = selectedDueHour == -1
+                chipTime.isVisible = selectedDueHour != -1
+                chipTime.text = getFormattedTime(selectedDueHour, selectedDueMinute)
             }
         }
 
@@ -82,17 +100,36 @@ class AddEditFragment : Fragment(), MenuProvider {
         binding.apply {
             lytAddDate.setOnClickListener {
                 showDatePicker()
-                //todo show time picker after date picker
+            }
+
+            lytAddTime.setOnClickListener {
+                showTimePicker()
             }
 
             chipDate.setOnClickListener {
                 showDatePicker(selectedDueDate)
             }
 
+            chipTime.setOnClickListener {
+                showTimePicker(selectedDueHour, selectedDueMinute)
+            }
+
             chipDate.setOnCloseIconClickListener {
                 selectedDueDate = 0
                 binding.txtAddDate.isVisible = true
                 binding.chipDate.isVisible = false
+            }
+
+            chipTime.setOnCloseIconClickListener {
+                selectedDueHour = -1
+                selectedDueMinute = -1
+                binding.txtAddTime.isVisible = true
+                binding.chipTime.isVisible = false
+            }
+
+            cbCompleted.setOnCheckedChangeListener { _, isChecked ->
+                if (isChecked) etTask.paintFlags = etTask.paintFlags or STRIKE_THRU_TEXT_FLAG
+                else etTask.paintFlags = etTask.paintFlags and STRIKE_THRU_TEXT_FLAG.inv()
             }
 
             fabSave.setOnClickListener {
@@ -102,7 +139,9 @@ class AddEditFragment : Fragment(), MenuProvider {
                     viewModel.onSaveClick(
                         title = binding.etTask.text.toString(),
                         isCompleted = binding.cbCompleted.isChecked,
-                        dueDate = selectedDueDate
+                        dueDate = selectedDueDate,
+                        dueTime = Pair(selectedDueHour, selectedDueMinute),
+                        desc = binding.etDesc.text.toString()
                     )
                 }
             }
@@ -160,17 +199,45 @@ class AddEditFragment : Fragment(), MenuProvider {
     private fun showDatePicker(selectedDate: Long = 0) {
         val datePicker = MaterialDatePicker.Builder.datePicker()
             .setTitleText("Select due date")
-            .setSelection(if (selectedDate.toInt() == 0) MaterialDatePicker.todayInUtcMilliseconds() else selectedDate)
+            .setSelection(if (selectedDate.toInt() == 0) System.currentTimeMillis() else selectedDate.convertLocalToUtc())
             .build()
 
         datePicker.addOnPositiveButtonClickListener {
-            selectedDueDate = it
+            selectedDueDate = it.convertUtcToLocalMidnight()
             binding.txtAddDate.isVisible = false
             binding.chipDate.isVisible = true
-            binding.chipDate.text = DateFormat.getDateInstance().format(it)
+            binding.chipDate.text = selectedDueDate.toFormattedDateString(false)
         }
 
         datePicker.show(childFragmentManager, "datePicker")
+    }
+
+    private fun showTimePicker(hour: Int = 0, minutes: Int = 0) {
+        val picker = MaterialTimePicker.Builder()
+            .setTimeFormat(TimeFormat.CLOCK_12H)
+            .setHour(if (hour > 0) hour else 0)
+            .setMinute(if (minutes > 0) minutes else 0)
+            .setTitleText("Select due time")
+            .build()
+
+        picker.addOnPositiveButtonClickListener {
+            selectedDueHour = picker.hour // [0, 23]
+            selectedDueMinute = picker.minute // [0, 60]
+
+            if (selectedDueDate==0L){
+                selectedDueDate = getTodayMidnightTimestamp()
+                binding.txtAddDate.isVisible = false
+                binding.chipDate.isVisible = true
+                binding.chipDate.text = selectedDueDate.toFormattedDateString(false)
+            }
+
+            binding.txtAddTime.isVisible = false
+            binding.chipTime.isVisible = true
+            binding.chipTime.text = getFormattedTime(selectedDueHour, selectedDueMinute)
+        }
+
+
+        picker.show(childFragmentManager, "timePicker");
     }
 
     override fun onDestroyView() {

@@ -23,12 +23,20 @@ class AddEditViewModel @Inject constructor(
 
     var task: Task? = null
 
-    fun onSaveClick(title: String, isCompleted: Boolean, dueDate: Long = 0) {
+    fun onSaveClick(
+        title: String,
+        isCompleted: Boolean,
+        dueDate: Long = 0,
+        dueTime: Pair<Int, Int> = Pair(-1,-1),
+        desc: String? = null
+    ) {
         if (task != null) {
             val updatedTask = task!!.copy(
                 name = title,
                 completed = isCompleted,
                 dueDate = dueDate,
+                desc = desc,
+                dueTime = dueTime,
                 completedDate = if (isCompleted) System.currentTimeMillis() else 0
             )
             updateTask(updatedTask)
@@ -37,6 +45,8 @@ class AddEditViewModel @Inject constructor(
                 name = title,
                 completed = isCompleted,
                 dueDate = dueDate,
+                desc = desc,
+                dueTime = dueTime,
                 completedDate = if (isCompleted) System.currentTimeMillis() else 0
             )
             createTask(newTask)

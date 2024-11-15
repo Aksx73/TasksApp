@@ -27,13 +27,10 @@
         android:id="@+id/lytAddDetails"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:animateLayoutChanges="true"
-        android:background="?selectableItemBackground"
-        android:clickable="true"
-        android:paddingVertical="12dp"
         android:gravity="center_vertical"
         android:orientation="horizontal"
         android:paddingHorizontal="16dp"
+        android:paddingVertical="10dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/etTask">
@@ -45,9 +42,11 @@
             android:src="@drawable/ic_notes_24" />
 
         <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/et_desc"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginHorizontal="16dp"
+            android:layout_marginStart="16dp"
+            android:paddingVertical="0dp"
             android:background="@android:color/transparent"
             android:hint="Add details"
             android:textColorHint="?android:attr/textColorSecondary"
@@ -72,14 +71,14 @@
         <ImageView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/ic_clock_24" />
+            android:src="@drawable/ic_calender_today_24" />
 
         <TextView
             android:id="@+id/txtAddDate"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
-            android:text="Add date/time"
+            android:text="Add date"
             android:textAppearance="?textAppearanceBodyLarge"
             android:textColor="?android:attr/textColorSecondary" />
 
@@ -91,6 +90,49 @@
             android:layout_marginStart="16dp"
             android:paddingVertical="0dp"
             android:text="Wed, 24 May"
+            android:textColor="?android:attr/textColorSecondary"
+            android:visibility="gone"
+            app:closeIcon="@drawable/ic_close_24"
+            app:closeIconEnabled="true" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/lytAddTime"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:animateLayoutChanges="true"
+        android:background="?selectableItemBackground"
+        android:clickable="true"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingHorizontal="16dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/lytAddDate">
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_clock_24" />
+
+        <TextView
+            android:id="@+id/txtAddTime"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:text="Add time"
+            android:textAppearance="?textAppearanceBodyLarge"
+            android:textColor="?android:attr/textColorSecondary" />
+
+        <com.google.android.material.chip.Chip
+            android:id="@+id/chipTime"
+            style="@style/Widget.Material3.Chip.Assist"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:paddingVertical="0dp"
+            android:text="3:00 pm"
+            android:textColor="?android:attr/textColorSecondary"
             android:visibility="gone"
             app:closeIcon="@drawable/ic_close_24"
             app:closeIconEnabled="true" />
@@ -109,7 +151,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/lytAddDate" />
+        app:layout_constraintTop_toBottomOf="@+id/lytAddTime" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fab_save"

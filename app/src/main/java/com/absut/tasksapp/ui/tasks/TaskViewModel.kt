@@ -37,7 +37,12 @@ class TaskViewModel @Inject constructor(
     }
 
     fun onTaskCheckedChanged(task: Task, isChecked: Boolean) = viewModelScope.launch {
-        taskRepository.updateTask(task.copy(completed = isChecked))
+        taskRepository.updateTask(
+            task.copy(
+                completed = isChecked,
+                completedDate = if (isChecked) System.currentTimeMillis() else 0
+            )
+        )
     }
 
     fun deleteAllCompletedTask() = viewModelScope.launch {
