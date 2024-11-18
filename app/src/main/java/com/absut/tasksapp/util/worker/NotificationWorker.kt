@@ -13,6 +13,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat.getSystemService
+import androidx.navigation.NavDeepLinkBuilder
 import androidx.work.ForegroundInfo
 import androidx.work.Worker
 import androidx.work.WorkerParameters
@@ -74,6 +75,18 @@ class NotificationWorker(private val appContext: Context, workerParams: WorkerPa
             mainActivityIntent,
             PendingIntent.FLAG_IMMUTABLE
         )
+
+        val taskListPendingIntent = NavDeepLinkBuilder(applicationContext)
+                .setGraph(R.navigation.nav_graph)
+                .setDestination(R.id.TaskFragment)
+                .createPendingIntent()
+
+        val taskDetailPendingIntent = NavDeepLinkBuilder(applicationContext)
+            .setGraph(R.navigation.nav_graph)
+            .setDestination(R.id.AddEditTaskFragment)
+            .createPendingIntent()
+
+
 
         //todo handle detail screen intent
         //todo create action click intent (mark completed)
