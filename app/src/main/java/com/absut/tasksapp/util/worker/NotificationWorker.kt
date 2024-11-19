@@ -25,6 +25,13 @@ import kotlin.properties.Delegates
 class NotificationWorker(private val appContext: Context, workerParams: WorkerParameters) :
     Worker(appContext, workerParams) {
 
+        //todo notification conditions
+        // schedule notification when date+time is assign to task in new & edit case do same
+        // when task is completed then remove schedule notification task if set
+        // when task is deleted then remove schedule notification task if set
+        // handle "mark completed" notification action click to perform db task to update entry
+
+
     override fun doWork(): Result {
         //todo
 
@@ -92,9 +99,9 @@ class NotificationWorker(private val appContext: Context, workerParams: WorkerPa
         //todo create action click intent (mark completed)
 
         return NotificationCompat.Builder(applicationContext, CHANNEL_ID)
-            .setSmallIcon(R.drawable.ic_launcher_background)
-            .setContentTitle(applicationContext.getString(R.string.app_name))
-            .setContentText("Work Request Done!") //tasks text
+            .setSmallIcon(R.drawable.ic_notification)
+            .setContentTitle(applicationContext.getString(R.string.notification_title))
+            .setContentText("Todo task title") //tasks text
             .setContentIntent(mainActivityPendingIntent)
             //.addAction(R.drawable.action1_icon, "Mark completed", actionPendingIntent)
             .setAutoCancel(true)
@@ -103,6 +110,8 @@ class NotificationWorker(private val appContext: Context, workerParams: WorkerPa
 
     companion object {
         const val CHANNEL_NAME = "Timed tasks"
+        const val CHANNEL_NAME_TODAY = "Tasks for today"
+        const val CHANNEL_NAME_YESTERDAY = "Tasks from yesterday"
         const val CHANNEL_DESCRIPTION = "channel for all timed tasks"
         const val CHANNEL_ID = "channel_timed_tasks"
     }
