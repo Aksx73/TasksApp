@@ -88,7 +88,7 @@ class NotificationWorker(private val appContext: Context, workerParams: WorkerPa
         return NotificationCompat.Builder(applicationContext, CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_notification)
             .setContentTitle(applicationContext.getString(R.string.notification_title))
-            .setContentText("Work Request Done!") //tasks text
+            .setContentText("Todo task title") //tasks text
             .setContentIntent(mainActivityPendingIntent)
             //.addAction(R.drawable.action1_icon, "Mark completed", actionPendingIntent)
             .setAutoCancel(true)
