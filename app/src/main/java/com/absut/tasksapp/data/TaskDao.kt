@@ -22,6 +22,9 @@ interface TaskDao {
     @Query("SELECT * FROM task_table WHERE completed == :completed ORDER BY completedDate DESC")
     fun getTaskSortedByCompletedDate(completed: Boolean): Flow<List<Task>>
 
+    @Query("SELECT * FROM task_table WHERE id == :id")
+    suspend fun getTaskById(id: Int): Task
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(task: Task)
 
@@ -31,7 +34,13 @@ interface TaskDao {
     @Delete
     suspend fun delete(task: Task)
 
+    @Query("DELETE FROM task_table WHERE id = :id")
+    suspend fun deleteById(id: Int)
+
     @Query("DELETE FROM task_table WHERE completed = 1")
     suspend fun deleteCompletedTasks()
+
+    @Query("UPDATE task_table SET completed = 1 WHERE id = :id")
+    suspend fun updateTaskAsCompleted(id:Int)
 
 }

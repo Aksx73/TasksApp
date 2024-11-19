@@ -9,6 +9,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
+import android.os.Bundle
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
@@ -17,23 +18,24 @@ import androidx.navigation.NavDeepLinkBuilder
 import androidx.work.ForegroundInfo
 import androidx.work.Worker
 import androidx.work.WorkerParameters
-import com.absut.tasksapp.MainActivity
 import com.absut.tasksapp.R
-import kotlin.properties.Delegates
+import com.absut.tasksapp.data.NotificationActionReceiver
 
 
 class NotificationWorker(private val appContext: Context, workerParams: WorkerParameters) :
     Worker(appContext, workerParams) {
 
-        //todo notification conditions
-        // schedule notification when date+time is assign to task in new & edit case do same
-        // when task is completed then remove schedule notification task if set
-        // when task is deleted then remove schedule notification task if set
-        // handle "mark completed" notification action click to perform db task to update entry
+    //todo notification conditions
+    // schedule notification when date+time is assign to task in new & edit case do same
+    // when task is completed then remove schedule notification task if set
+    // when task is deleted then remove schedule notification task if set
+    // handle "mark completed" notification action click to perform db task to update entry
 
 
     override fun doWork(): Result {
-        //todo
+
+        val taskId = inputData.getInt(TASK_ID, -1)
+        val taskTitle = inputData.getString(TASK_TITLE)
 
         if (ActivityCompat.checkSelfPermission(
                 appContext,
@@ -41,7 +43,7 @@ class NotificationWorker(private val appContext: Context, workerParams: WorkerPa
             ) == PackageManager.PERMISSION_GRANTED
         ) {
             with(NotificationManagerCompat.from(applicationContext)) {
-                notify(0, createNotification())
+                notify(0, createNotification(taskId, taskTitle))
             }
         }
 
@@ -54,7 +56,7 @@ class NotificationWorker(private val appContext: Context, workerParams: WorkerPa
      * Your app crashes without this override.
      * */
     override fun getForegroundInfo(): ForegroundInfo {
-        return ForegroundInfo(0, createNotification())
+        return ForegroundInfo(0, createNotification(-1, null))
     }
 
     private fun createNotificationChannel() {
@@ -72,38 +74,37 @@ class NotificationWorker(private val appContext: Context, workerParams: WorkerPa
         }
     }
 
-    private fun createNotification(): Notification {
+    private fun createNotification(taskId: Int = -1, taskTitle: String?): Notification {
         createNotificationChannel()
 
-        val mainActivityIntent = Intent(applicationContext, MainActivity::class.java)
-        val mainActivityPendingIntent = PendingIntent.getActivity(
-            applicationContext,
-            0,
-            mainActivityIntent,
-            PendingIntent.FLAG_IMMUTABLE
-        )
-
-        val taskListPendingIntent = NavDeepLinkBuilder(applicationContext)
+        //to handle detail screen intent
+        val args = Bundle()
+        val pendingIntent = if (taskId > 0) {
+            args.putInt(TASK_ID, taskId)
+            NavDeepLinkBuilder(applicationContext)
+                .setGraph(R.navigation.nav_graph)
+                .setDestination(R.id.AddEditTaskFragment)
+                .setArguments(args)
+                .createPendingIntent()
+        } else {
+            NavDeepLinkBuilder(applicationContext)
                 .setGraph(R.navigation.nav_graph)
                 .setDestination(R.id.TaskFragment)
                 .createPendingIntent()
+        }
 
-        val taskDetailPendingIntent = NavDeepLinkBuilder(applicationContext)
-            .setGraph(R.navigation.nav_graph)
-            .setDestination(R.id.AddEditTaskFragment)
-            .createPendingIntent()
-
-
-
-        //todo handle detail screen intent
         //todo create action click intent (mark completed)
+        val actionIntent = Intent(appContext, NotificationActionReceiver::class.java)
+        val actionPendingIntent =
+            PendingIntent.getBroadcast(appContext, 0, actionIntent, PendingIntent.FLAG_IMMUTABLE)
+
 
         return NotificationCompat.Builder(applicationContext, CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_notification)
-            .setContentTitle(applicationContext.getString(R.string.notification_title))
-            .setContentText("Todo task title") //tasks text
-            .setContentIntent(mainActivityPendingIntent)
-            //.addAction(R.drawable.action1_icon, "Mark completed", actionPendingIntent)
+            .setContentTitle(taskTitle) //tasks text
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setContentIntent(pendingIntent)
+            //.addAction(R.drawable.ic_check_24, "Mark completed", actionPendingIntent)
             .setAutoCancel(true)
             .build()
     }
@@ -114,5 +115,8 @@ class NotificationWorker(private val appContext: Context, workerParams: WorkerPa
         const val CHANNEL_NAME_YESTERDAY = "Tasks from yesterday"
         const val CHANNEL_DESCRIPTION = "channel for all timed tasks"
         const val CHANNEL_ID = "channel_timed_tasks"
+
+        const val TASK_ID = "taskId"
+        const val TASK_TITLE = "taskTitle"
     }
 }

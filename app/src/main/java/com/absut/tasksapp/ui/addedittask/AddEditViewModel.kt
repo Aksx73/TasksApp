@@ -8,6 +8,8 @@ import com.absut.tasksapp.util.Constants.ADD_TASK_RESULT_OK
 import com.absut.tasksapp.util.Constants.DELETE_TASK_RESULT_OK
 import com.absut.tasksapp.util.Constants.EDIT_TASK_RESULT_OK
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.launch
@@ -22,6 +24,7 @@ class AddEditViewModel @Inject constructor(
     val addEditTaskEvent: SharedFlow<AddEditTaskEvent> = _addEditTaskEvent
 
     var task: Task? = null
+    var taskId: Int = 0
 
     fun onSaveClick(
         title: String,
@@ -68,6 +71,13 @@ class AddEditViewModel @Inject constructor(
             taskRepository.deleteTask(it)
             _addEditTaskEvent.emit(AddEditTaskEvent.NavigateBackWithResult(DELETE_TASK_RESULT_OK))
         }
+    }
+
+    suspend fun getTaskById(id: Int): Task {
+        val deferred: Deferred<Task> = viewModelScope.async {
+            taskRepository.getTaskById(id)
+        }
+        return deferred.await()
     }
 
 

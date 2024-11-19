@@ -33,5 +33,14 @@
             android:defaultValue="@null"
             app:argType="com.absut.tasksapp.data.Task"
             app:nullable="true" />
+
+        <deepLink
+            android:id="@+id/deepLink"
+            app:uri="android-app://com.absut.tasksapp/taskDetail/{taskId}" />
+        <argument
+            android:name="taskId"
+            app:argType="integer"
+            android:defaultValue="-1" />
+
     </fragment>
 </navigation>
