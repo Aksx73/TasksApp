@@ -97,6 +97,8 @@ class NotificationWorker(private val appContext: Context, workerParams: WorkerPa
 
     companion object {
         const val CHANNEL_NAME = "Timed tasks"
+        const val CHANNEL_NAME_TODAY = "Tasks for today"
+        const val CHANNEL_NAME_YESTERDAY = "Tasks from yesterday"
         const val CHANNEL_DESCRIPTION = "channel for all timed tasks"
         const val CHANNEL_ID = "channel_timed_tasks"
     }
