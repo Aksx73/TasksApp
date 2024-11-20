@@ -30,6 +30,19 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private lateinit var navController: NavController
 
+    private val requestNotificationPermissionLauncher =
+        registerForActivityResult(
+            ActivityResultContracts.RequestPermission()
+        ) { isGranted: Boolean ->
+            if (isGranted) {
+                //has notification permission
+            } else {
+                if (!shouldShowRequestPermissionRationale(Manifest.permission.POST_NOTIFICATIONS)) {
+                    PermissionUtil.manualPermissionNeededDialog(this, this)
+                }
+            }
+        }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -38,12 +51,23 @@ class MainActivity : AppCompatActivity() {
 
         setSupportActionBar(binding.toolbar)
 
-        val navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment_content_main) as NavHostFragment
+        val navHostFragment =
+            supportFragmentManager.findFragmentById(R.id.nav_host_fragment_content_main) as NavHostFragment
         navController = navHostFragment.navController
         appBarConfiguration = AppBarConfiguration(navController.graph)
         setupActionBarWithNavController(navController, appBarConfiguration)
 
-       // val workManager = WorkManager.getInstance(application.applicationContext)
+        if (notificationPermissionNeeded()) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                PermissionUtil.checkForNotificationPermission(
+                    requireContext(), requireActivity(), requestNotificationPermissionLauncher) {
+                    //when has permission
+
+                }
+            }
+        }
+
+         val workManager = WorkManager.getInstance(application.applicationContext)
 
         val data = Data.Builder()
         data.putInt(TASK_ID, -1)
@@ -53,7 +77,7 @@ class MainActivity : AppCompatActivity() {
             .setRequiresBatteryNotLow(false)
             .build()
 
-        val work = PeriodicWorkRequestBuilder<NotificationWorker>(15,TimeUnit.MINUTES)
+        val work = PeriodicWorkRequestBuilder<NotificationWorker>(15, TimeUnit.MINUTES)
             .setConstraints(constraints)
             .setInputData(data.build())
             .build()
@@ -66,15 +90,24 @@ class MainActivity : AppCompatActivity() {
         handleIntent()
     }
 
-    private fun handleIntent(){
+    private fun handleIntent() {
         intent?.let {
-            val taskId = intent.getIntExtra(TASK_ID,0)
+            val taskId = intent.getIntExtra(TASK_ID, 0)
             Log.d("TAG", "handleIntent: Task ID : $taskId")
-            if (taskId>0){
+            if (taskId > 0) {
                 val uri = Uri.parse("android-app://${PACKAGE_NAME}/taskDetail/$taskId")
                 navController.navigate(uri)
             }
         }
+    }
+
+    private fun notificationPermissionNeeded(): Boolean {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            ContextCompat.checkSelfPermission(
+                requireContext(),
+                Manifest.permission.POST_NOTIFICATIONS
+            ) != PackageManager.PERMISSION_GRANTED
+        } else false
     }
 
     override fun onSupportNavigateUp(): Boolean {
