@@ -1,8 +1,18 @@
 package com.absut.tasksapp.util
 
+import android.app.Activity
+import android.content.Context
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Build
+import android.provider.Settings
 import android.view.View
+import androidx.activity.result.ActivityResultLauncher
 import androidx.annotation.RequiresApi
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import java.text.SimpleDateFormat
 import java.time.DateTimeException
@@ -197,23 +207,23 @@ object Util {
         when {
             ContextCompat.checkSelfPermission(
                 context,
-                Manifest.permission.POST_NOTIFICATIONS
+                android.Manifest.permission.POST_NOTIFICATIONS
             ) == PackageManager.PERMISSION_GRANTED -> {
                 hasPermission()
             }
 
             ActivityCompat.shouldShowRequestPermissionRationale(
                 activity,
-                Manifest.permission.POST_NOTIFICATIONS
+                android.Manifest.permission.POST_NOTIFICATIONS
             ) -> {
                 requestPermissionLauncher.launch(
-                    Manifest.permission.POST_NOTIFICATIONS
+                    android.Manifest.permission.POST_NOTIFICATIONS
                 )
             }
 
             else -> {
                 requestPermissionLauncher.launch(
-                    Manifest.permission.POST_NOTIFICATIONS
+                    android.Manifest.permission.POST_NOTIFICATIONS
                 )
             }
         }
@@ -224,13 +234,13 @@ object Util {
         context: Context,
         activity: Activity?,
         cancelable: Boolean = false ) {
-        val dialogBuilder = MaterialAlertDialogBuilder(context, R.style.MaterialAlert_CustomActionButton_Primary)
+        val dialogBuilder = MaterialAlertDialogBuilder(context)
         dialogBuilder.setTitle("Notification permission required")
         dialogBuilder.setMessage("Since you have denied the notification permission earlier, now you have enable it manually from app setting. Click on open setting button to go to app setting.")
         dialogBuilder.setPositiveButton("Open setting") { _, _ ->
             val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
             val uri = Uri.fromParts("package", activity?.packageName, null)
-            intent.setData(uri)
+            intent.data = uri
             context.startActivity(intent)
         }
         dialogBuilder.setNegativeButton("Cancel", null)

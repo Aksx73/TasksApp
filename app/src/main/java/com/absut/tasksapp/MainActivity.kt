@@ -1,9 +1,13 @@
 package com.absut.tasksapp
 
+import android.content.pm.PackageManager
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.NavHostFragment
@@ -15,8 +19,8 @@ import androidx.work.Data
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import com.absut.tasksapp.databinding.ActivityMainBinding
-import com.absut.tasksapp.util.Constants
 import com.absut.tasksapp.util.Constants.PACKAGE_NAME
+import com.absut.tasksapp.util.Util
 import com.absut.tasksapp.util.worker.NotificationWorker
 import com.absut.tasksapp.util.worker.NotificationWorker.Companion.TASK_ID
 import com.absut.tasksapp.util.worker.NotificationWorker.Companion.TASK_TITLE
@@ -37,8 +41,8 @@ class MainActivity : AppCompatActivity() {
             if (isGranted) {
                 //has notification permission
             } else {
-                if (!shouldShowRequestPermissionRationale(Manifest.permission.POST_NOTIFICATIONS)) {
-                    PermissionUtil.manualPermissionNeededDialog(this, this)
+                if (!shouldShowRequestPermissionRationale(android.Manifest.permission.POST_NOTIFICATIONS)) {
+                    Util.manualPermissionNeededDialog(this, this)
                 }
             }
         }
@@ -59,15 +63,13 @@ class MainActivity : AppCompatActivity() {
 
         if (notificationPermissionNeeded()) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                PermissionUtil.checkForNotificationPermission(
-                    requireContext(), requireActivity(), requestNotificationPermissionLauncher) {
+                Util.checkForNotificationPermission(this, this, requestNotificationPermissionLauncher) {
                     //when has permission
-
                 }
             }
         }
 
-         val workManager = WorkManager.getInstance(application.applicationContext)
+        val workManager = WorkManager.getInstance(application.applicationContext)
 
         val data = Data.Builder()
         data.putInt(TASK_ID, -1)
@@ -104,8 +106,8 @@ class MainActivity : AppCompatActivity() {
     private fun notificationPermissionNeeded(): Boolean {
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             ContextCompat.checkSelfPermission(
-                requireContext(),
-                Manifest.permission.POST_NOTIFICATIONS
+                this,
+                android.Manifest.permission.POST_NOTIFICATIONS
             ) != PackageManager.PERMISSION_GRANTED
         } else false
     }
