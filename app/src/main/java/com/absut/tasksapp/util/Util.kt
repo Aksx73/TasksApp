@@ -17,6 +17,7 @@ import java.util.Locale
 import java.util.TimeZone
 
 object Util {
+
     fun View.showSnackbarWithAnchor(message: String) {
         val snackbar = Snackbar.make(this, message, Snackbar.LENGTH_SHORT)
         snackbar.anchorView = this
@@ -184,6 +185,57 @@ object Util {
         val utcOffset = utcTimeZone.getOffset(this)
 
         return this - (localOffset - utcOffset)
+    }
+
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+    fun checkForNotificationPermission(
+        context: Context,
+        activity: Activity,
+        requestPermissionLauncher: ActivityResultLauncher<String>,
+        hasPermission: () -> Unit
+    ) {
+        when {
+            ContextCompat.checkSelfPermission(
+                context,
+                Manifest.permission.POST_NOTIFICATIONS
+            ) == PackageManager.PERMISSION_GRANTED -> {
+                hasPermission()
+            }
+
+            ActivityCompat.shouldShowRequestPermissionRationale(
+                activity,
+                Manifest.permission.POST_NOTIFICATIONS
+            ) -> {
+                requestPermissionLauncher.launch(
+                    Manifest.permission.POST_NOTIFICATIONS
+                )
+            }
+
+            else -> {
+                requestPermissionLauncher.launch(
+                    Manifest.permission.POST_NOTIFICATIONS
+                )
+            }
+        }
+    }
+
+
+    fun manualPermissionNeededDialog(
+        context: Context,
+        activity: Activity?,
+        cancelable: Boolean = false ) {
+        val dialogBuilder = MaterialAlertDialogBuilder(context, R.style.MaterialAlert_CustomActionButton_Primary)
+        dialogBuilder.setTitle("Notification permission required")
+        dialogBuilder.setMessage("Since you have denied the notification permission earlier, now you have enable it manually from app setting. Click on open setting button to go to app setting.")
+        dialogBuilder.setPositiveButton("Open setting") { _, _ ->
+            val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+            val uri = Uri.fromParts("package", activity?.packageName, null)
+            intent.setData(uri)
+            context.startActivity(intent)
+        }
+        dialogBuilder.setNegativeButton("Cancel", null)
+        dialogBuilder.setCancelable(cancelable)
+        dialogBuilder.show()
     }
 
 }
