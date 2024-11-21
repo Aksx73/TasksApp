@@ -13,6 +13,8 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.absut.tasksapp.R
@@ -20,6 +22,7 @@ import com.absut.tasksapp.data.Task
 import com.absut.tasksapp.databinding.FragmentCompletedTaskBinding
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class CompletedTaskFragment : Fragment(), TaskAdapter.OnItemClickListener, MenuProvider {
@@ -55,9 +58,13 @@ class CompletedTaskFragment : Fragment(), TaskAdapter.OnItemClickListener, MenuP
             }
         }
 
-        viewModel.completedTasks.observe(viewLifecycleOwner) {
-            taskAdapter.submitList(it)
-            binding.emptyView.isVisible = it.isEmpty()
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.completedTasks.collect { tasks ->
+                    taskAdapter.submitList(tasks)
+                    binding.emptyView.isVisible = tasks.isEmpty()
+                }
+            }
         }
 
     }

@@ -11,7 +11,12 @@ import com.absut.tasksapp.data.Task
 import com.absut.tasksapp.data.TaskRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -23,14 +28,23 @@ class TaskViewModel @Inject constructor(
 
     private val sortOrderFlow = preferenceManager.sortOrderFlow
 
-    @OptIn(ExperimentalCoroutinesApi::class)
     private val taskFlow = sortOrderFlow.flatMapLatest { sortOrder ->
         taskRepository.getTasks(sortOrder, false)
     }
-    val tasks = taskFlow.asLiveData()
+    val tasks = taskFlow
+        .stateIn(
+            viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = emptyList()
+        )
 
     private val completedTaskFlow = taskRepository.getTasks(SortOrder.BY_COMPLETED_DATE, true)
-    val completedTasks = completedTaskFlow.asLiveData()
+    val completedTasks = completedTaskFlow
+        .stateIn(
+            viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = emptyList()
+        )
 
     fun onSortOrderSelected(sortOrder: SortOrder) = viewModelScope.launch {
         preferenceManager.updateSortOrder(sortOrder)
