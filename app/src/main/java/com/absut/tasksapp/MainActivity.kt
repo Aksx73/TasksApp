@@ -101,7 +101,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun handleIntent() {
         intent?.let {
-            val taskId = intent.getIntExtra(TASK_ID, 0)
+            val taskId = intent.getLongExtra(TASK_ID, 0)
             Log.d("TAG", "handleIntent: Task ID : $taskId")
             if (taskId > 0) {
                 val uri = Uri.parse("android-app://${PACKAGE_NAME}/taskDetail/$taskId")

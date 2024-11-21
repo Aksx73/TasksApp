@@ -13,7 +13,7 @@ class NotificationActionReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context?, intent: Intent?) {
 
         intent?.let {
-            val taskId = intent.getIntExtra(TASK_ID, -1)
+            val taskId = intent.getLongExtra(TASK_ID, -1)
 
             if (taskId > 0){
                 val deleteTaskRequest = OneTimeWorkRequestBuilder<UpdateTaskWorker>()
