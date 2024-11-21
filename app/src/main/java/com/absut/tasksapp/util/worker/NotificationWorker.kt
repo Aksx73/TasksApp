@@ -31,23 +31,24 @@ class NotificationWorker(private val appContext: Context, workerParams: WorkerPa
     // when task is deleted then remove schedule notification task if set
     // handle "mark completed" notification action click to perform db task to update entry
 
+    private var taskId: Int = -1
+    private var taskTitle: String? = null
 
     override fun doWork(): Result {
 
-        val taskId = inputData.getInt(TASK_ID, -1)
-        val taskTitle = inputData.getString(TASK_TITLE)
+        taskId = inputData.getInt(TASK_ID, -1)
+        taskTitle = inputData.getString(TASK_TITLE)
 
-        if (ActivityCompat.checkSelfPermission(
-                appContext,
-                Manifest.permission.POST_NOTIFICATIONS
-            ) == PackageManager.PERMISSION_GRANTED
-        ) {
-            with(NotificationManagerCompat.from(applicationContext)) {
-                notify(0, createNotification(taskId, taskTitle))
+        if (taskId > 0) {
+            if (ActivityCompat.checkSelfPermission(appContext, Manifest.permission.POST_NOTIFICATIONS)
+                == PackageManager.PERMISSION_GRANTED) {
+                with(NotificationManagerCompat.from(applicationContext)) {
+                    notify(0, createNotification(taskId, taskTitle))
+                }
             }
-        }
+            return Result.success()
+        } else return Result.failure()
 
-        return Result.success()
     }
 
     /**
@@ -56,7 +57,7 @@ class NotificationWorker(private val appContext: Context, workerParams: WorkerPa
      * Your app crashes without this override.
      * */
     override fun getForegroundInfo(): ForegroundInfo {
-        return ForegroundInfo(0, createNotification(-1, null))
+        return ForegroundInfo(0, createNotification(taskId, taskTitle))
     }
 
     private fun createNotificationChannel() {
@@ -93,8 +94,9 @@ class NotificationWorker(private val appContext: Context, workerParams: WorkerPa
                 .createPendingIntent()
         }
 
-        //todo create action click intent (mark completed)
+        //todo create action click intent (mark complete)
         val actionIntent = Intent(appContext, NotificationActionReceiver::class.java)
+        actionIntent.putExtra(TASK_ID, taskId)
         val actionPendingIntent =
             PendingIntent.getBroadcast(appContext, 0, actionIntent, PendingIntent.FLAG_IMMUTABLE)
 

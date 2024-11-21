@@ -180,6 +180,9 @@ class AddEditFragment : Fragment(), MenuProvider {
                 viewModel.addEditTaskEvent.collect { event ->
                     when (event) {
                         is AddEditViewModel.AddEditTaskEvent.NavigateBackWithResult -> {
+
+                            //todo schedule notification worker if due date set
+
                             setFragmentResult(
                                 "add_edit_request",
                                 bundleOf("add_edit_result" to event.result)

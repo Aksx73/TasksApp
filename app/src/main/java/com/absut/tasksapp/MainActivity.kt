@@ -5,9 +5,11 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
+import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.navigation.NavController
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.NavHostFragment
@@ -24,6 +26,7 @@ import com.absut.tasksapp.util.Util
 import com.absut.tasksapp.util.worker.NotificationWorker
 import com.absut.tasksapp.util.worker.NotificationWorker.Companion.TASK_ID
 import com.absut.tasksapp.util.worker.NotificationWorker.Companion.TASK_TITLE
+import com.google.android.material.color.DynamicColors
 import dagger.hilt.android.AndroidEntryPoint
 import java.util.concurrent.TimeUnit
 
@@ -48,7 +51,11 @@ class MainActivity : AppCompatActivity() {
         }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        installSplashScreen()
+
         super.onCreate(savedInstanceState)
+
+        //DynamicColors.applyToActivityIfAvailable(this)
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
