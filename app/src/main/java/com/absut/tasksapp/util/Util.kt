@@ -140,8 +140,7 @@ object Util {
             val instant = Instant.ofEpochMilli(this)
             val localZoneId = ZoneId.systemDefault() // Get the system's default time zone
             val localDateTime = instant.atZone(localZoneId) // Convert to local time zone
-            val localMidnight = localDateTime.toLocalDate()
-                .atStartOfDay(localZoneId) // Get midnight in local time zone
+            val localMidnight = localDateTime.toLocalDate().atStartOfDay(localZoneId) // Get midnight in local time zone
             return localMidnight.toInstant().toEpochMilli() // Convert back to timestamp
         } else {
             val calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"))
@@ -160,7 +159,7 @@ object Util {
     }
 
     /**
-     * Return timestamp if today's date at 00:00 (12:00 am / midnight / start of the day)
+     * Return timestamp of today's date at 00:00 (12:00 am / midnight / start of the day)
      * */
     fun getTodayMidnightTimestamp(): Long {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -195,6 +194,20 @@ object Util {
         val utcOffset = utcTimeZone.getOffset(this)
 
         return this - (localOffset - utcOffset)
+    }
+
+    /**
+     * with given midnight date timestamp, hours and minutes of the day
+     * returns time in milliseconds
+     **/
+    fun getMillisecondsFromDateTime(dateTimestamp: Long, hours: Int,minutes: Int) : Long{
+        val calendar = Calendar.getInstance(TimeZone.getDefault())
+        calendar.timeInMillis = dateTimestamp
+        // Set the hours and minutes
+        calendar.set(Calendar.HOUR_OF_DAY,hours)
+        calendar.set(Calendar.MINUTE,minutes)
+
+        return calendar.timeInMillis
     }
 
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
