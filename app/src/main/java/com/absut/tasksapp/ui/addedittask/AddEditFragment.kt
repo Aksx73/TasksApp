@@ -22,6 +22,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.absut.tasksapp.R
+import com.absut.tasksapp.data.Task
 import com.absut.tasksapp.databinding.FragmentAddEditBinding
 import com.absut.tasksapp.util.Util.convertLocalToUtc
 import com.absut.tasksapp.util.Util.convertUtcToLocalMidnight
@@ -31,14 +32,13 @@ import com.absut.tasksapp.util.Util.showSnackbarWithAnchor
 import com.absut.tasksapp.util.Util.toFormattedDateString
 import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.timepicker.MaterialTimePicker
 import com.google.android.material.timepicker.TimeFormat
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.datetime.Clock
-import kotlinx.datetime.Instant
-import java.time.ZoneId
-import java.time.ZonedDateTime
+import kotlinx.coroutines.withContext
 
 
 @AndroidEntryPoint
@@ -60,19 +60,37 @@ class AddEditFragment : Fragment(), MenuProvider {
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentAddEditBinding.inflate(inflater, container, false)
+
+        viewModel.task = args.task
+        viewModel.taskId = args.taskId
+        selectedDueDate = viewModel.task?.dueDate ?: 0L
+
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        viewModel.task = args.task
-        selectedDueDate = args.task?.dueDate ?: 0L
-
         val menuHost: MenuHost = requireActivity()
         menuHost.addMenuProvider(this, viewLifecycleOwner, Lifecycle.State.RESUMED)
 
-        viewModel.task?.let { task ->
+        if (viewModel.task != null) {
+            setTaskData(viewModel.task)
+        } else if (viewModel.taskId > 0) {
+            viewLifecycleOwner.lifecycleScope.launch {
+                viewModel.task = viewModel.getTaskById(viewModel.taskId)
+                withContext(Dispatchers.Main) {
+                    setTaskData(viewModel.task)
+                }
+            }
+        }
+
+        clickListener()
+        observeEvents()
+    }
+
+    private fun setTaskData(taskData: Task?) {
+        taskData?.let { task ->
             binding.apply {
                 etTask.setText(task.name)
                 cbCompleted.isChecked = task.completed == true
@@ -91,9 +109,17 @@ class AddEditFragment : Fragment(), MenuProvider {
                 chipTime.text = getFormattedTime(selectedDueHour, selectedDueMinute)
             }
         }
-
-        clickListener()
-        observeEvents()
+        if (taskData==null){
+            // task not found for given task id
+            MaterialAlertDialogBuilder(requireContext())
+                .setTitle("Task not found")
+                .setMessage("Task your are searching might have been deleted earlier")
+                .setPositiveButton("Okay, Go Back"){ dialog,_ ->
+                    dialog.dismiss()
+                    findNavController().navigateUp()
+                }
+                .show()
+        }
     }
 
     private fun clickListener() {
@@ -224,7 +250,7 @@ class AddEditFragment : Fragment(), MenuProvider {
             selectedDueHour = picker.hour // [0, 23]
             selectedDueMinute = picker.minute // [0, 60]
 
-            if (selectedDueDate==0L){
+            if (selectedDueDate == 0L) {
                 selectedDueDate = getTodayMidnightTimestamp()
                 binding.txtAddDate.isVisible = false
                 binding.chipDate.isVisible = true
