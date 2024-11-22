@@ -72,7 +72,7 @@ class TaskAdapter(
                 txtDate.isVisible = task.dueDate.toInt() != 0 && !task.completed
 
                 checkbox.isChecked = task.completed
-                txtTitle.text = task.name
+                txtTitle.text = task.name.trim()
                 txtTitle.paint.isStrikeThruText = task.completed
                 txtDate.text =
                     if (task.dueTime.first != -1)
@@ -84,7 +84,7 @@ class TaskAdapter(
                             )
                         }"
                     else task.dueDate.toFormattedDateString(true)
-                txtSubtitle.text = task.desc
+                txtSubtitle.text = task.desc?.trim()
 
                 val colorPrimary: Int = MaterialColors.getColor(
                     binding.root.context,

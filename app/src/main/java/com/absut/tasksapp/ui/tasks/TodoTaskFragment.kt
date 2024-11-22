@@ -96,6 +96,10 @@ class TodoTaskFragment : Fragment(), TaskAdapter.OnItemClickListener, MenuProvid
     }
 
     override fun onCheckBoxClick(task: Task, isChecked: Boolean) {
+        //todo cancel is notification is scheduled
+
+        //update operation return number of rows effected or updated ( 0 -> failed, > 0  -> success)
+
         viewModel.onTaskCheckedChanged(task, isChecked)
     }
 

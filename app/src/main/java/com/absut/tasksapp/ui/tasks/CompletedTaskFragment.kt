@@ -70,11 +70,13 @@ class CompletedTaskFragment : Fragment(), TaskAdapter.OnItemClickListener, MenuP
     }
 
     override fun onItemClick(task: Task) {
-        val action = TasksFragmentDirections.actionTaskFragmentToAddEditTaskFragment(task)
+        val action = TasksFragmentDirections.actionTaskFragmentToAddEditTaskFragment(task = task)
         findNavController().navigate(action)
     }
 
     override fun onCheckBoxClick(task: Task, isChecked: Boolean) {
+        //todo schedule notification if has dueDate
+
         viewModel.onTaskCheckedChanged(task, isChecked)
     }
 

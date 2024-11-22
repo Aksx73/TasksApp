@@ -51,8 +51,8 @@ class MainActivity : AppCompatActivity() {
         }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        installSplashScreen()
-
+        //installSplashScreen()
+        //enableEdgeToEdge()
         super.onCreate(savedInstanceState)
 
         //DynamicColors.applyToActivityIfAvailable(this)
