@@ -25,6 +25,7 @@ import androidx.work.WorkManager
 import com.absut.tasksapp.R
 import com.absut.tasksapp.data.Task
 import com.absut.tasksapp.databinding.FragmentAddEditBinding
+import com.absut.tasksapp.util.Constants
 import com.absut.tasksapp.util.Util.convertLocalToUtc
 import com.absut.tasksapp.util.Util.convertUtcToLocalMidnight
 import com.absut.tasksapp.util.Util.getFormattedTime
@@ -41,6 +42,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlin.text.get
 
 
 @AndroidEntryPoint
@@ -56,7 +58,9 @@ class AddEditFragment : Fragment(), MenuProvider {
     private var selectedDueMinute: Int = -1
     private var selectedDueHour: Int = -1
 
-    private lateinit var workManager : WorkManager
+    private val workManager: WorkManager by lazy {
+        WorkManager.getInstance(requireContext().applicationContext)
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -89,8 +93,6 @@ class AddEditFragment : Fragment(), MenuProvider {
             }
         }
 
-        workManager = WorkManager.getInstance(requireContext().applicationContext)
-
         clickListener()
         observeEvents()
     }
@@ -115,12 +117,12 @@ class AddEditFragment : Fragment(), MenuProvider {
                 chipTime.text = getFormattedTime(selectedDueHour, selectedDueMinute)
             }
         }
-        if (taskData==null){
+        if (taskData == null) {
             // task not found for given task id
             MaterialAlertDialogBuilder(requireContext())
                 .setTitle("Task not found")
                 .setMessage("Task your are searching might have been deleted earlier")
-                .setPositiveButton("Okay, Go Back"){ dialog,_ ->
+                .setPositiveButton("Okay, Go Back") { dialog, _ ->
                     dialog.dismiss()
                     findNavController().navigateUp()
                 }
@@ -150,6 +152,12 @@ class AddEditFragment : Fragment(), MenuProvider {
                 selectedDueDate = 0
                 binding.txtAddDate.isVisible = true
                 binding.chipDate.isVisible = false
+
+                //remove time as well if set
+                selectedDueHour = -1
+                selectedDueMinute = -1
+                binding.txtAddTime.isVisible = true
+                binding.chipTime.isVisible = false
             }
 
             chipTime.setOnCloseIconClickListener {
@@ -186,11 +194,37 @@ class AddEditFragment : Fragment(), MenuProvider {
                 viewModel.addEditTaskEvent.collect { event ->
                     when (event) {
                         is AddEditViewModel.AddEditTaskEvent.NavigateBackWithResult -> {
+                            when (event.result) {
+                                Constants.ADD_TASK_RESULT_OK  -> {
+                                    //set id to task object as for new insert record id will be generated after insertion
+                                    viewModel.task = viewModel.task?.copy(id = event.recordId)
+                                    if (viewModel.task?.dueDate != 0L && viewModel.task?.completed == false) {
+                                        //schedule notification if task has dueDate and is mot complete
+                                        WorkerUtil.scheduleTaskNotification(workManager, viewModel.task!!)
+                                    }
+                                }
 
-                            //todo schedule notification worker if due date set
-                            //set id to task object as for new insert record id will be generated after insertion
-                            viewModel.task = viewModel.task?.copy(id = event.recordId)
-                            WorkerUtil.scheduleTaskNotification(workManager, viewModel.task!! )
+                                Constants.EDIT_TASK_RESULT_OK -> {
+                                    if (viewModel.task?.dueDate != 0L && viewModel.task?.completed == false) {
+                                        //schedule notification (in update case existing worker will be replaced with new one)
+                                        WorkerUtil.scheduleTaskNotification(workManager, viewModel.task!!)
+                                    } else {
+                                        //cancel scheduled notification if -> dueDate is removed, marked as completed
+                                        //check if work exist then cancel it
+                                        val workInfos = workManager.getWorkInfosForUniqueWork(viewModel.task?.id.toString()).get()
+                                        if (workInfos.isNotEmpty()) {
+                                            WorkerUtil.cancelTaskNotification(workManager, viewModel.task?.id!!)
+                                        }
+                                    }
+                                }
+
+                                Constants.DELETE_TASK_RESULT_OK -> {
+                                    val workInfos = workManager.getWorkInfosForUniqueWork(viewModel.task?.id.toString()).get()
+                                    if (workInfos.isNotEmpty()) {
+                                        WorkerUtil.cancelTaskNotification(workManager, viewModel.task?.id!!)
+                                    }
+                                }
+                            }
 
                             setFragmentResult(
                                 "add_edit_request",
@@ -237,7 +271,7 @@ class AddEditFragment : Fragment(), MenuProvider {
     private fun showDatePicker(selectedDate: Long = 0) {
         val datePicker = MaterialDatePicker.Builder.datePicker()
             .setTitleText("Select due date")
-            .setSelection(if (selectedDate.toInt() == 0) System.currentTimeMillis() else selectedDate.convertLocalToUtc())
+            .setSelection(if (selectedDate == 0L) System.currentTimeMillis() else selectedDate.convertLocalToUtc())
             .build()
 
         datePicker.addOnPositiveButtonClickListener {

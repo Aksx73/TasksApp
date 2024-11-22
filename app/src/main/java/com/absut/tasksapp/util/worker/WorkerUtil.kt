@@ -1,5 +1,6 @@
 package com.absut.tasksapp.util.worker
 
+import android.util.Log
 import androidx.work.ExistingWorkPolicy
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
@@ -14,8 +15,7 @@ import kotlin.to
 object WorkerUtil {
 
     fun scheduleTaskNotification(workManager: WorkManager, task: Task) {
-        //todo calculate task deadline by combining date/time
-
+        //if no time is set then by default time will be 9:00 am
         val taskDeadline = Util.getMillisecondsFromDateTime(
             task.dueDate,
             task.dueTime.first,
@@ -39,11 +39,16 @@ object WorkerUtil {
             //.setConstraints(constraints)
             .build()
 
-        workManager.enqueueUniqueWork(
-            task.id.toString(), // Unique work name
-            ExistingWorkPolicy.REPLACE, // Replace existing work if any
-            workRequest
-        )
+        // check if date/time is of future
+        if (initialDelay >= 0) {
+            workManager.enqueueUniqueWork(
+                task.id.toString(), // Unique work name
+                ExistingWorkPolicy.REPLACE, // Replace existing work if any
+                workRequest
+            )
+        } else {
+            Log.d("WorkerUtil", "scheduleTaskNotification: Task reminder not scheduled as date/time is of past")
+        }
     }
 
     fun cancelTaskNotification(workManager: WorkManager, taskId: Long) {

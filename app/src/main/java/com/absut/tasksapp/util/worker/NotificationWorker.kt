@@ -25,11 +25,13 @@ import com.absut.tasksapp.data.NotificationActionReceiver
 class NotificationWorker(private val appContext: Context, workerParams: WorkerParameters) :
     Worker(appContext, workerParams) {
 
-    //todo notification conditions
-    // schedule notification when date+time is assign to task in new & edit case do same
-    // when task is completed then remove schedule notification task if set
-    // when task is deleted then remove schedule notification task if set
-    // handle "mark completed" notification action click to perform db task to update entry
+        //todo notification conditions
+        // schedule notification when date+time is assign to task in new & edit case do same -> DONE
+        // cancel scheduled worker if date+time is removed from task -> DONE
+        // when task is completed then remove schedule notification task if set (detail screen -> DONE , home screen -> PENDING)
+        // when task is deleted then remove schedule notification task if set -> DONE
+        // handle "mark completed" notification action click to perform db task to update entry -> PENDING
+        // don't schedule task for due date of past -> DONE
 
     private var taskId: Long = -1
     private var taskTitle: String? = null

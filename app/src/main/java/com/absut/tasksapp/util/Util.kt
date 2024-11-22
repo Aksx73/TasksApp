@@ -18,8 +18,10 @@ import java.text.SimpleDateFormat
 import java.time.DateTimeException
 import java.time.Instant
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.ZoneId
+import java.time.ZoneOffset
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.util.Calendar
@@ -117,7 +119,7 @@ object Util {
                 }
                 return time.format(formatter)
             } else {
-                val formattedMinutes = String.format(Locale.getDefault(),"%02d", minutes)
+                val formattedMinutes = String.format(Locale.getDefault(), "%02d", minutes)
                 val formattedHours = (hours % 12).takeIf { it != 0 } ?: 12
                 val amPm = if (hours >= 12) "pm" else "am"
                 return if (trimZeroMinutes && formattedMinutes == "00") {
@@ -140,7 +142,8 @@ object Util {
             val instant = Instant.ofEpochMilli(this)
             val localZoneId = ZoneId.systemDefault() // Get the system's default time zone
             val localDateTime = instant.atZone(localZoneId) // Convert to local time zone
-            val localMidnight = localDateTime.toLocalDate().atStartOfDay(localZoneId) // Get midnight in local time zone
+            val localMidnight = localDateTime.toLocalDate()
+                .atStartOfDay(localZoneId) // Get midnight in local time zone
             return localMidnight.toInstant().toEpochMilli() // Convert back to timestamp
         } else {
             val calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"))
@@ -182,31 +185,44 @@ object Util {
      * Convert current local timezone timestamp to UTC zone timestamp
      * Required in MaterialDatePicker for default initial date selection
      * as it only take timestamp in UTC timezone
+     * @return UTC timestamp in milliseconds since epoch
      * */
     fun Long.convertLocalToUtc(): Long {
-        val calendar = Calendar.getInstance()
-        calendar.timeInMillis = this
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val local = LocalDateTime.ofInstant(
+                Instant.ofEpochMilli(this),
+                ZoneId.systemDefault()
+            )
+            return local.atZone(ZoneId.systemDefault())
+                .withZoneSameLocal(ZoneOffset.UTC)
+                .toInstant()
+                .toEpochMilli()
+        } else {
+            val localTimeZone = TimeZone.getDefault()
+           // No need to get UTC timezone offset as it's always 0
+            val localOffset = localTimeZone.getOffset(this)
 
-        val localTimeZone = TimeZone.getDefault()
-        val utcTimeZone = TimeZone.getTimeZone("UTC")
-
-        val localOffset = localTimeZone.getOffset(this)
-        val utcOffset = utcTimeZone.getOffset(this)
-
-        return this - (localOffset - utcOffset)
+            return this - localOffset
+        }
     }
 
     /**
      * with given midnight date timestamp, hours and minutes of the day
      * returns time in milliseconds
+     * if hours and minutes are not set then set time as 9:00
      **/
-    fun getMillisecondsFromDateTime(dateTimestamp: Long, hours: Int,minutes: Int) : Long{
+    fun getMillisecondsFromDateTime(dateTimestamp: Long, hours: Int, minutes: Int): Long {
         val calendar = Calendar.getInstance(TimeZone.getDefault())
         calendar.timeInMillis = dateTimestamp
-        // Set the hours and minutes
-        calendar.set(Calendar.HOUR_OF_DAY,hours)
-        calendar.set(Calendar.MINUTE,minutes)
-
+        if (hours != -1 && minutes != -1) {
+            // Set the hours and minutes
+            calendar.set(Calendar.HOUR_OF_DAY, hours)
+            calendar.set(Calendar.MINUTE, minutes)
+        } else {
+            //set time to 9:00 am
+            calendar.set(Calendar.HOUR_OF_DAY, 9)
+            calendar.set(Calendar.MINUTE, 0)
+        }
         return calendar.timeInMillis
     }
 
@@ -246,7 +262,8 @@ object Util {
     fun manualPermissionNeededDialog(
         context: Context,
         activity: Activity?,
-        cancelable: Boolean = false ) {
+        cancelable: Boolean = false
+    ) {
         val dialogBuilder = MaterialAlertDialogBuilder(context)
         dialogBuilder.setTitle("Notification permission required")
         dialogBuilder.setMessage("Since you have denied the notification permission earlier, now you have enable it manually from app setting. Click on open setting button to go to app setting.")
