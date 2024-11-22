@@ -31,12 +31,12 @@ class NotificationWorker(private val appContext: Context, workerParams: WorkerPa
     // when task is deleted then remove schedule notification task if set
     // handle "mark completed" notification action click to perform db task to update entry
 
-    private var taskId: Int = -1
+    private var taskId: Long = -1
     private var taskTitle: String? = null
 
     override fun doWork(): Result {
 
-        taskId = inputData.getInt(TASK_ID, -1)
+        taskId = inputData.getLong(TASK_ID, -1)
         taskTitle = inputData.getString(TASK_TITLE)
 
         if (taskId > 0) {
@@ -75,13 +75,13 @@ class NotificationWorker(private val appContext: Context, workerParams: WorkerPa
         }
     }
 
-    private fun createNotification(taskId: Int = -1, taskTitle: String?): Notification {
+    private fun createNotification(taskId: Long = -1, taskTitle: String?): Notification {
         createNotificationChannel()
 
         //to handle detail screen intent
         val args = Bundle()
         val pendingIntent = if (taskId > 0) {
-            args.putInt(TASK_ID, taskId)
+            args.putLong(TASK_ID, taskId)
             NavDeepLinkBuilder(applicationContext)
                 .setGraph(R.navigation.nav_graph)
                 .setDestination(R.id.AddEditTaskFragment)

@@ -13,13 +13,13 @@ interface TaskRepository {
 
     suspend fun deleteTask(task: Task)
 
-    suspend fun deleteTaskById(id: Int)
+    suspend fun deleteTaskById(id: Long)
 
     suspend fun deleteCompletedTasks()
 
     suspend fun insertTask(task: Task) : Long
 
-    suspend fun getTaskById(id: Int): Task
+    suspend fun getTaskById(id: Long): Task
 
-    suspend fun updateTaskAsCompleted(id: Int)
+    suspend fun updateTaskAsCompleted(id: Long)
 }

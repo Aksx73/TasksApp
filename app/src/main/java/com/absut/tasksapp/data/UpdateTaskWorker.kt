@@ -18,7 +18,7 @@ class UpdateTaskWorker @AssistedInject constructor(
 ) : CoroutineWorker(context, workerParams) {
 
     override suspend fun doWork(): Result {
-        val taskId = inputData.getInt(TASK_ID, -1)
+        val taskId = inputData.getLong(TASK_ID, -1)
         if (taskId > 0) {
             // set completed to true of the given task id
             withContext(Dispatchers.IO) {

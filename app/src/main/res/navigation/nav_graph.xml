@@ -39,8 +39,8 @@
             app:uri="android-app://com.absut.tasksapp/taskDetail/{taskId}" />
         <argument
             android:name="taskId"
-            app:argType="integer"
-            android:defaultValue="-1" />
+            app:argType="long"
+            android:defaultValue="-1L" />
 
     </fragment>
 </navigation>

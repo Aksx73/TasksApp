@@ -23,8 +23,17 @@ val MIGRATION_2_3 = object : Migration(2, 3) {
     }
 }
 
+//to change primary key (id) data type to Long from Int
 val MIGRATION_3_4 = object : Migration(3, 4) {
     override fun migrate(db: SupportSQLiteDatabase) {
-        db.execSQL("ALTER TABLE task_table MODIFY COLUMN id INTEGER") // Change to INTEGER (which is equivalent to Long in Room)
+        // Create a new table with the desired structure
+        db.execSQL("CREATE TABLE task_table_new (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, name TEXT NOT NULL,desc TEXT,completed INTEGER NOT NULL,dueDate INTEGER NOT NULL,dueTime TEXT NOT NULL,createdDate INTEGER NOT NULL,completedDate INTEGER NOT NULL)")
+        // Copy data from the old table
+        db.execSQL("INSERT INTO task_table_new (id,name,desc,completed, dueDate,dueTime,createdDate,completedDate) SELECT id, name, desc, completed, dueDate, dueTime, createdDate, completedDate FROM task_table")
+        // Drop the old table
+        db.execSQL("DROP TABLE task_table")
+        // Rename the new table
+        db.execSQL("ALTER TABLE task_table_new RENAME TO task_table")
+
     }
 }
