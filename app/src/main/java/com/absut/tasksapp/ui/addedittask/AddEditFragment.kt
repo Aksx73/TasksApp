@@ -21,6 +21,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
+import androidx.work.WorkManager
 import com.absut.tasksapp.R
 import com.absut.tasksapp.data.Task
 import com.absut.tasksapp.databinding.FragmentAddEditBinding
@@ -30,6 +31,7 @@ import com.absut.tasksapp.util.Util.getFormattedTime
 import com.absut.tasksapp.util.Util.getTodayMidnightTimestamp
 import com.absut.tasksapp.util.Util.showSnackbarWithAnchor
 import com.absut.tasksapp.util.Util.toFormattedDateString
+import com.absut.tasksapp.util.worker.WorkerUtil
 import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
@@ -53,6 +55,8 @@ class AddEditFragment : Fragment(), MenuProvider {
     private var selectedDueDate: Long = 0L
     private var selectedDueMinute: Int = -1
     private var selectedDueHour: Int = -1
+
+    private lateinit var workManager : WorkManager
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -85,6 +89,8 @@ class AddEditFragment : Fragment(), MenuProvider {
             }
         }
 
+        workManager = WorkManager.getInstance(requireContext().applicationContext)
+
         clickListener()
         observeEvents()
     }
@@ -92,9 +98,9 @@ class AddEditFragment : Fragment(), MenuProvider {
     private fun setTaskData(taskData: Task?) {
         taskData?.let { task ->
             binding.apply {
-                etTask.setText(task.name)
+                etTask.setText(task.name.trim())
                 cbCompleted.isChecked = task.completed == true
-                etDesc.setText(task.desc)
+                etDesc.setText(task.desc?.trim())
                 etTask.paint.isStrikeThruText = cbCompleted.isChecked
 
                 txtAddDate.isVisible = task.dueDate == 0L
@@ -163,11 +169,11 @@ class AddEditFragment : Fragment(), MenuProvider {
                     it.showSnackbarWithAnchor("Task cannot be empty")
                 } else {
                     viewModel.onSaveClick(
-                        title = binding.etTask.text.toString(),
+                        title = binding.etTask.text.toString().trim(),
                         isCompleted = binding.cbCompleted.isChecked,
                         dueDate = selectedDueDate,
                         dueTime = Pair(selectedDueHour, selectedDueMinute),
-                        desc = binding.etDesc.text.toString()
+                        desc = binding.etDesc.text.toString().trim()
                     )
                 }
             }
@@ -182,6 +188,9 @@ class AddEditFragment : Fragment(), MenuProvider {
                         is AddEditViewModel.AddEditTaskEvent.NavigateBackWithResult -> {
 
                             //todo schedule notification worker if due date set
+                            //set id to task object as for new insert record id will be generated after insertion
+                            viewModel.task = viewModel.task?.copy(id = event.recordId)
+                            WorkerUtil.scheduleTaskNotification(workManager, viewModel.task!! )
 
                             setFragmentResult(
                                 "add_edit_request",

@@ -1,14 +1,14 @@
 package com.absut.tasksapp.util.worker
 
-import android.content.Context
 import androidx.work.ExistingWorkPolicy
+import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
-import androidx.work.WorkRequest
 import androidx.work.workDataOf
 import com.absut.tasksapp.data.Task
 import com.absut.tasksapp.util.Util
 import com.absut.tasksapp.util.worker.NotificationWorker.Companion.TASK_ID
 import com.absut.tasksapp.util.worker.NotificationWorker.Companion.TASK_TITLE
+import java.util.concurrent.TimeUnit
 import kotlin.to
 
 object WorkerUtil {
@@ -17,37 +17,41 @@ object WorkerUtil {
         //todo calculate task deadline by combining date/time
 
         val taskDeadline = Util.getMillisecondsFromDateTime(
-            Task.dueDate,
-            Pair.first,
-            Pair.second
+            task.dueDate,
+            task.dueTime.first,
+            task.dueTime.second
         )
         val currentTime = System.currentTimeMillis()
         val initialDelay = taskDeadline - currentTime
 
         val data = workDataOf(
-            com.absut.tasksapp.util.worker.NotificationWorker.Companion.TASK_ID to Task.id,
-            com.absut.tasksapp.util.worker.NotificationWorker.Companion.TASK_TITLE to Task.name
+            TASK_ID to task.id,
+            TASK_TITLE to task.name
         )
 
         /*val constraints = Constraints.Builder()
             .setRequiresBatteryNotLow(false)
             .build()*/
 
-        val workRequest = WorkRequest.Builder.build()
+        val workRequest = OneTimeWorkRequestBuilder<NotificationWorker>()
+            .setInitialDelay(initialDelay, TimeUnit.MILLISECONDS)
+            .setInputData(data)
+            //.setConstraints(constraints)
+            .build()
 
-        WorkManager.enqueueUniqueWork(
-            toString(), // Unique work name
+        workManager.enqueueUniqueWork(
+            task.id.toString(), // Unique work name
             ExistingWorkPolicy.REPLACE, // Replace existing work if any
             workRequest
         )
     }
 
     fun cancelTaskNotification(workManager: WorkManager, taskId: Long) {
-        WorkManager.cancelUniqueWork(toString())
+        workManager.cancelUniqueWork(taskId.toString())
     }
 
     fun updateTaskNotification(workManager: WorkManager, task: Task) {
-        cancelTaskNotification(workManager, Task.id)
+        cancelTaskNotification(workManager, task.id)
         scheduleTaskNotification(workManager, task)
     }
 

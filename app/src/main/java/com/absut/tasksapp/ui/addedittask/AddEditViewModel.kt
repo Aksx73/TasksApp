@@ -24,17 +24,17 @@ class AddEditViewModel @Inject constructor(
     val addEditTaskEvent: SharedFlow<AddEditTaskEvent> = _addEditTaskEvent
 
     var task: Task? = null
-    var taskId: Int = 0
+    var taskId: Long = -1
 
     fun onSaveClick(
         title: String,
         isCompleted: Boolean,
         dueDate: Long = 0,
-        dueTime: Pair<Int, Int> = Pair(-1,-1),
+        dueTime: Pair<Int, Int> = Pair(-1, -1),
         desc: String? = null
     ) {
         if (task != null) {
-            val updatedTask = task!!.copy(
+            task = task!!.copy(
                 name = title,
                 completed = isCompleted,
                 dueDate = dueDate,
@@ -42,9 +42,9 @@ class AddEditViewModel @Inject constructor(
                 dueTime = dueTime,
                 completedDate = if (isCompleted) System.currentTimeMillis() else 0
             )
-            updateTask(updatedTask)
+            updateTask(task!!)
         } else {
-            val newTask = Task(
+            task = Task(
                 name = title,
                 completed = isCompleted,
                 dueDate = dueDate,
@@ -52,28 +52,33 @@ class AddEditViewModel @Inject constructor(
                 dueTime = dueTime,
                 completedDate = if (isCompleted) System.currentTimeMillis() else 0
             )
-            createTask(newTask)
+            createTask(task!!)
         }
     }
 
-    private fun createTask(task: Task) = viewModelScope.launch {
-        taskRepository.insertTask(task)
-        _addEditTaskEvent.emit(AddEditTaskEvent.NavigateBackWithResult(ADD_TASK_RESULT_OK))
+    private fun createTask(task: Task) = viewModelScope.launch { //get id
+        val newRecordId = taskRepository.insertTask(task)
+        _addEditTaskEvent.emit(
+            AddEditTaskEvent.NavigateBackWithResult(
+                ADD_TASK_RESULT_OK,
+                newRecordId
+            )
+        )
     }
 
     private fun updateTask(task: Task) = viewModelScope.launch {
         taskRepository.updateTask(task)
-        _addEditTaskEvent.emit(AddEditTaskEvent.NavigateBackWithResult(EDIT_TASK_RESULT_OK))
+        _addEditTaskEvent.emit(AddEditTaskEvent.NavigateBackWithResult(EDIT_TASK_RESULT_OK, task.id))
     }
 
     fun deleteTask() = viewModelScope.launch {
         task?.let {
             taskRepository.deleteTask(it)
-            _addEditTaskEvent.emit(AddEditTaskEvent.NavigateBackWithResult(DELETE_TASK_RESULT_OK))
+            _addEditTaskEvent.emit(AddEditTaskEvent.NavigateBackWithResult(DELETE_TASK_RESULT_OK, -1))
         }
     }
 
-    suspend fun getTaskById(id: Int): Task {
+    suspend fun getTaskById(id: Long): Task {
         val deferred: Deferred<Task> = viewModelScope.async {
             taskRepository.getTaskById(id)
         }
@@ -82,7 +87,7 @@ class AddEditViewModel @Inject constructor(
 
 
     sealed class AddEditTaskEvent {
-        data class NavigateBackWithResult(val result: Int) : AddEditTaskEvent()
+        data class NavigateBackWithResult(val result: Int, val recordId: Long) : AddEditTaskEvent()
     }
 
 }
