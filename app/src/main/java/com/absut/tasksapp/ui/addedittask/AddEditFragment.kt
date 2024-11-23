@@ -22,6 +22,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.work.WorkManager
+import com.absut.tasksapp.MainActivity
 import com.absut.tasksapp.R
 import com.absut.tasksapp.data.Task
 import com.absut.tasksapp.databinding.FragmentAddEditBinding
@@ -33,6 +34,7 @@ import com.absut.tasksapp.util.Util.getTodayMidnightTimestamp
 import com.absut.tasksapp.util.Util.showSnackbarWithAnchor
 import com.absut.tasksapp.util.Util.toFormattedDateString
 import com.absut.tasksapp.util.worker.WorkerUtil
+import com.absut.tasksapp.util.worker.uniqueWorkName
 import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
@@ -57,10 +59,6 @@ class AddEditFragment : Fragment(), MenuProvider {
     private var selectedDueDate: Long = 0L
     private var selectedDueMinute: Int = -1
     private var selectedDueHour: Int = -1
-
-    private val workManager: WorkManager by lazy {
-        WorkManager.getInstance(requireContext().applicationContext)
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -200,28 +198,28 @@ class AddEditFragment : Fragment(), MenuProvider {
                                     viewModel.task = viewModel.task?.copy(id = event.recordId)
                                     if (viewModel.task?.dueDate != 0L && viewModel.task?.completed == false) {
                                         //schedule notification if task has dueDate and is mot complete
-                                        WorkerUtil.scheduleTaskNotification(workManager, viewModel.task!!)
+                                        WorkerUtil.scheduleTaskNotification((activity as MainActivity).workManager, viewModel.task!!)
                                     }
                                 }
 
                                 Constants.EDIT_TASK_RESULT_OK -> {
                                     if (viewModel.task?.dueDate != 0L && viewModel.task?.completed == false) {
                                         //schedule notification (in update case existing worker will be replaced with new one)
-                                        WorkerUtil.scheduleTaskNotification(workManager, viewModel.task!!)
+                                        WorkerUtil.scheduleTaskNotification((activity as MainActivity).workManager, viewModel.task!!)
                                     } else {
                                         //cancel scheduled notification if -> dueDate is removed, marked as completed
                                         //check if work exist then cancel it
-                                        val workInfos = workManager.getWorkInfosForUniqueWork(viewModel.task?.id.toString()).get()
+                                        val workInfos = (activity as MainActivity).workManager.getWorkInfosForUniqueWork(viewModel.task?.id!!.uniqueWorkName()).get()
                                         if (workInfos.isNotEmpty()) {
-                                            WorkerUtil.cancelTaskNotification(workManager, viewModel.task?.id!!)
+                                            WorkerUtil.cancelTaskNotification((activity as MainActivity).workManager, viewModel.task?.id!!)
                                         }
                                     }
                                 }
 
                                 Constants.DELETE_TASK_RESULT_OK -> {
-                                    val workInfos = workManager.getWorkInfosForUniqueWork(viewModel.task?.id.toString()).get()
+                                    val workInfos = (activity as MainActivity).workManager.getWorkInfosForUniqueWork(viewModel.task?.id!!.uniqueWorkName()).get()
                                     if (workInfos.isNotEmpty()) {
-                                        WorkerUtil.cancelTaskNotification(workManager, viewModel.task?.id!!)
+                                        WorkerUtil.cancelTaskNotification((activity as MainActivity).workManager, viewModel.task?.id!!)
                                     }
                                 }
                             }
