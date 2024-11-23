@@ -9,7 +9,7 @@ interface TaskRepository {
 
     fun getTasks(sortOrder: SortOrder, completed: Boolean): Flow<List<Task>>
 
-    suspend fun updateTask(task: Task)
+    suspend fun updateTask(task: Task): Int
 
     suspend fun deleteTask(task: Task)
 

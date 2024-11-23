@@ -17,12 +17,17 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.absut.tasksapp.MainActivity
 import com.absut.tasksapp.R
 import com.absut.tasksapp.data.Task
 import com.absut.tasksapp.databinding.FragmentCompletedTaskBinding
+import com.absut.tasksapp.util.Util.showSnackbarWithAnchor
+import com.absut.tasksapp.util.worker.WorkerUtil
+import com.absut.tasksapp.util.worker.uniqueWorkName
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
+import kotlin.collections.isNotEmpty
 
 @AndroidEntryPoint
 class CompletedTaskFragment : Fragment(), TaskAdapter.OnItemClickListener, MenuProvider {
@@ -75,9 +80,32 @@ class CompletedTaskFragment : Fragment(), TaskAdapter.OnItemClickListener, MenuP
     }
 
     override fun onCheckBoxClick(task: Task, isChecked: Boolean) {
-        //todo schedule notification if has dueDate
-
         viewModel.onTaskCheckedChanged(task, isChecked)
+        observeTaskCompleteStatusChange(task,isChecked)
+    }
+
+    private fun observeTaskCompleteStatusChange(task: Task, isChecked: Boolean){
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.taskCheckedChangeState.collect { result ->
+                    when {
+                        result > 0 -> { //operation successful
+                            //re schedule work if has due date
+                            if (task.dueDate != 0L && isChecked == false) {
+                                //schedule notification (in update case existing worker will be replaced with new one)
+                                WorkerUtil.scheduleTaskNotification((activity as MainActivity).workManager, task)
+                            }
+                        }
+                        result == 0 -> { // operation failed
+                            binding.root.showSnackbarWithAnchor("Operation failed!")
+                        }
+                        else ->{ // operation failed
+                            binding.root.showSnackbarWithAnchor("Something went wrong!")
+                        }
+                    }
+                }
+            }
+        }
     }
 
     override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {

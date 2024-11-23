@@ -17,12 +17,17 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.absut.tasksapp.MainActivity
 import com.absut.tasksapp.R
 import com.absut.tasksapp.data.SortOrder
 import com.absut.tasksapp.data.Task
 import com.absut.tasksapp.databinding.FragmentTodoTaskBinding
+import com.absut.tasksapp.util.Util.showSnackbarWithAnchor
+import com.absut.tasksapp.util.worker.WorkerUtil
+import com.absut.tasksapp.util.worker.uniqueWorkName
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
+import kotlin.collections.isNotEmpty
 
 
 @AndroidEntryPoint
@@ -70,6 +75,34 @@ class TodoTaskFragment : Fragment(), TaskAdapter.OnItemClickListener, MenuProvid
 
     }
 
+    private fun observeTaskCompleteStatusChange(task: Task, isChecked: Boolean){
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.taskCheckedChangeState.collect { result ->
+                    when {
+                        result > 0 -> { //operation successful
+                            // cancel if notification is scheduled
+                            //update operation return number of rows effected or updated ( 0 -> failed, '> 0'  -> success)
+                            //check if work exist then cancel it
+                            if (isChecked) {
+                                val workInfos = (activity as MainActivity).workManager.getWorkInfosForUniqueWork(task.id.uniqueWorkName()).get()
+                                if (workInfos.isNotEmpty()) {
+                                    WorkerUtil.cancelTaskNotification((activity as MainActivity).workManager, task.id)
+                                }
+                            }
+                        }
+                        result == 0 -> { // operation failed
+                            binding.root.showSnackbarWithAnchor("Operation failed!")
+                        }
+                        else ->{ // operation failed
+                            binding.root.showSnackbarWithAnchor("Something went wrong!")
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
         menuInflater.inflate(R.menu.menu_main, menu)
     }
@@ -96,11 +129,8 @@ class TodoTaskFragment : Fragment(), TaskAdapter.OnItemClickListener, MenuProvid
     }
 
     override fun onCheckBoxClick(task: Task, isChecked: Boolean) {
-        //todo cancel is notification is scheduled
-
-        //update operation return number of rows effected or updated ( 0 -> failed, > 0  -> success)
-
         viewModel.onTaskCheckedChanged(task, isChecked)
+        observeTaskCompleteStatusChange(task,isChecked)
     }
 
     override fun onDestroyView() {

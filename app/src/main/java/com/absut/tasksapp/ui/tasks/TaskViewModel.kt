@@ -9,9 +9,12 @@ import com.absut.tasksapp.data.PreferenceManager
 import com.absut.tasksapp.data.SortOrder
 import com.absut.tasksapp.data.Task
 import com.absut.tasksapp.data.TaskRepository
+import com.absut.tasksapp.ui.addedittask.AddEditViewModel.AddEditTaskEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -27,6 +30,9 @@ class TaskViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val sortOrderFlow = preferenceManager.sortOrderFlow
+
+    private val _taskCheckedChangeState = MutableSharedFlow<Int>()
+    val taskCheckedChangeState: SharedFlow<Int> = _taskCheckedChangeState
 
     private val taskFlow = sortOrderFlow.flatMapLatest { sortOrder ->
         taskRepository.getTasks(sortOrder, false)
@@ -51,12 +57,19 @@ class TaskViewModel @Inject constructor(
     }
 
     fun onTaskCheckedChanged(task: Task, isChecked: Boolean) = viewModelScope.launch {
-        taskRepository.updateTask(
-            task.copy(
-                completed = isChecked,
-                completedDate = if (isChecked) System.currentTimeMillis() else 0
+        try {
+            _taskCheckedChangeState.emit(
+                taskRepository.updateTask(
+                    task.copy(
+                        completed = isChecked,
+                        completedDate = if (isChecked) System.currentTimeMillis() else 0
+                    )
+                )
             )
-        )
+        } catch (e: Exception) {
+            _taskCheckedChangeState.emit(-1)
+        }
+
     }
 
     fun deleteAllCompletedTask() = viewModelScope.launch {
