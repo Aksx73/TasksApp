@@ -42,7 +42,7 @@ object WorkerUtil {
         // check if date/time is of future
         if (initialDelay >= 0) {
             workManager.enqueueUniqueWork(
-                task.id.toString(), // Unique work name
+                task.id.uniqueWorkName(), // Unique work name
                 ExistingWorkPolicy.REPLACE, // Replace existing work if any
                 workRequest
             )
@@ -52,7 +52,7 @@ object WorkerUtil {
     }
 
     fun cancelTaskNotification(workManager: WorkManager, taskId: Long) {
-        workManager.cancelUniqueWork(taskId.toString())
+        workManager.cancelUniqueWork(taskId.uniqueWorkName())
     }
 
     fun updateTaskNotification(workManager: WorkManager, task: Task) {
@@ -60,4 +60,8 @@ object WorkerUtil {
         scheduleTaskNotification(workManager, task)
     }
 
+}
+
+fun Long.uniqueWorkName(): String{
+    return "work_$this"
 }

@@ -37,6 +37,10 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private lateinit var navController: NavController
 
+    val workManager: WorkManager by lazy {
+        WorkManager.getInstance(this.applicationContext)
+    }
+
     private val requestNotificationPermissionLauncher =
         registerForActivityResult(
             ActivityResultContracts.RequestPermission()
@@ -101,7 +105,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun handleIntent() {
         intent?.let {
-            val taskId = intent.getLongExtra(TASK_ID, 0)
+            val taskId = intent.getLongExtra(TASK_ID, -1)
             Log.d("TAG", "handleIntent: Task ID : $taskId")
             if (taskId > 0) {
                 val uri = Uri.parse("android-app://${PACKAGE_NAME}/taskDetail/$taskId")

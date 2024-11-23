@@ -54,7 +54,7 @@ class TasksFragment : Fragment(R.layout.fragment_tasks) {
 
         setFragmentResultListener("add_edit_request") { _, bundle ->
             val result = bundle.getInt("add_edit_result")
-            Log.d("TAG", "onViewCreated: $result")
+            Log.d("TAG", "onViewCreated: fragment result -> $result")
             when(result){
                 Constants.ADD_TASK_RESULT_OK -> {
                     binding.fabAdd.showSnackbarWithAnchor("Task added")

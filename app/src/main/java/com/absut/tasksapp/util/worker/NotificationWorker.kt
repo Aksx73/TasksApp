@@ -10,6 +10,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
@@ -40,14 +41,16 @@ class NotificationWorker(private val appContext: Context, workerParams: WorkerPa
 
         taskId = inputData.getLong(TASK_ID, -1)
         taskTitle = inputData.getString(TASK_TITLE)
+        Log.d("NotificationWorker", "doWork: taskId - $taskId , taskName - $taskTitle")
 
         if (taskId > 0) {
             if (ActivityCompat.checkSelfPermission(appContext, Manifest.permission.POST_NOTIFICATIONS)
                 == PackageManager.PERMISSION_GRANTED) {
                 with(NotificationManagerCompat.from(applicationContext)) {
-                    notify(0, createNotification(taskId, taskTitle))
+                    notify(taskId.convertLongToInt(), createNotification(taskId, taskTitle))
                 }
             }
+            Log.d("NotificationWorker", "Success: taskId - $taskId , taskName - $taskTitle")
             return Result.success()
         } else return Result.failure()
 
@@ -59,7 +62,8 @@ class NotificationWorker(private val appContext: Context, workerParams: WorkerPa
      * Your app crashes without this override.
      * */
     override fun getForegroundInfo(): ForegroundInfo {
-        return ForegroundInfo(0, createNotification(taskId, taskTitle))
+        Log.d("NotificationWorker", "getForegroundInfo: called")
+        return ForegroundInfo(taskId.convertLongToInt() , createNotification(taskId, taskTitle))
     }
 
     private fun createNotificationChannel() {
@@ -123,4 +127,9 @@ class NotificationWorker(private val appContext: Context, workerParams: WorkerPa
         const val TASK_ID = "taskId"
         const val TASK_TITLE = "taskTitle"
     }
+}
+
+fun Long.convertLongToInt(): Int {
+    val intValue:Int? = if (this in Int.MIN_VALUE.toLong()..Int.MAX_VALUE.toLong()) this.toInt() else null
+    return intValue ?: Int.MAX_VALUE // Or handle the overflow differently
 }
