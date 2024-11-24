@@ -31,6 +31,7 @@ import com.absut.tasksapp.util.Util.convertLocalToUtc
 import com.absut.tasksapp.util.Util.convertUtcToLocalMidnight
 import com.absut.tasksapp.util.Util.getFormattedTime
 import com.absut.tasksapp.util.Util.getTodayMidnightTimestamp
+import com.absut.tasksapp.util.Util.hideKeyboard
 import com.absut.tasksapp.util.Util.showSnackbarWithAnchor
 import com.absut.tasksapp.util.Util.toFormattedDateString
 import com.absut.tasksapp.util.worker.WorkerUtil
@@ -174,6 +175,7 @@ class AddEditFragment : Fragment(), MenuProvider {
                 if (binding.etTask.text.isNullOrBlank()) {
                     it.showSnackbarWithAnchor("Task cannot be empty")
                 } else {
+                    this@AddEditFragment.hideKeyboard()
                     viewModel.onSaveClick(
                         title = binding.etTask.text.toString().trim(),
                         isCompleted = binding.cbCompleted.isChecked,
