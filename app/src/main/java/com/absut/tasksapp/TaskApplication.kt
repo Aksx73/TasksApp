@@ -6,15 +6,13 @@ import com.google.android.material.color.DynamicColors
 import dagger.hilt.android.HiltAndroidApp
 
 @HiltAndroidApp
-class TaskApplication : Application(), Configuration.Provider{
+class TaskApplication : Application(){
 
 	override fun onCreate() {
 		super.onCreate()
 		DynamicColors.applyToActivitiesIfAvailable(this)
 	}
 
-	override val workManagerConfiguration: Configuration
-		get() = TODO("Not yet implemented")
 }
 
 
