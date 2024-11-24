@@ -146,16 +146,15 @@ object Util {
                 .atStartOfDay(localZoneId) // Get midnight in local time zone
             return localMidnight.toInstant().toEpochMilli() // Convert back to timestamp
         } else {
-            val calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"))
-            calendar.timeInMillis = this
-
             val localTimeZone = TimeZone.getDefault()
-            calendar.timeZone = localTimeZone
-
-            calendar.set(Calendar.HOUR_OF_DAY, 0)
-            calendar.set(Calendar.MINUTE, 0)
-            calendar.set(Calendar.SECOND, 0)
-            calendar.set(Calendar.MILLISECOND, 0)
+            val calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC")).apply {
+                timeInMillis = this@convertUtcToLocalMidnight
+                timeZone = localTimeZone
+                set(Calendar.HOUR_OF_DAY, 0)
+                set(Calendar.MINUTE, 0)
+                set(Calendar.SECOND, 0)
+                set(Calendar.MILLISECOND, 0)
+            }
 
             return calendar.timeInMillis
         }
@@ -171,12 +170,13 @@ object Util {
             val midnight = today.atStartOfDay(localZoneId) // Get midnight in local time zone
             return midnight.toInstant().toEpochMilli() // Convert to timestamp
         } else {
-            val calendar = Calendar.getInstance()
-            calendar.timeZone = TimeZone.getDefault() // Set to local time zone
-            calendar.set(Calendar.HOUR_OF_DAY, 0)
-            calendar.set(Calendar.MINUTE, 0)
-            calendar.set(Calendar.SECOND, 0)
-            calendar.set(Calendar.MILLISECOND, 0)
+            val calendar = Calendar.getInstance().apply {
+                timeZone = TimeZone.getDefault() // Set to local time zone
+                set(Calendar.HOUR_OF_DAY, 0)
+                set(Calendar.MINUTE, 0)
+                set(Calendar.SECOND, 0)
+                set(Calendar.MILLISECOND, 0)
+            }
             return calendar.timeInMillis
         }
     }

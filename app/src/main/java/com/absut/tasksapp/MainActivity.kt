@@ -80,22 +80,6 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        val workManager = WorkManager.getInstance(application.applicationContext)
-
-        val data = Data.Builder()
-        data.putInt(TASK_ID, -1)
-        data.putString(TASK_TITLE, "this is note title")
-
-        val constraints = Constraints.Builder()
-            .setRequiresBatteryNotLow(false)
-            .build()
-
-        val work = PeriodicWorkRequestBuilder<NotificationWorker>(15, TimeUnit.MINUTES)
-            .setConstraints(constraints)
-            .setInputData(data.build())
-            .build()
-
-        //workManager.enqueue(work)
     }
 
     override fun onResume() {

@@ -23,8 +23,10 @@ import com.absut.tasksapp.R
 import com.absut.tasksapp.data.NotificationActionReceiver
 
 
-class NotificationWorker(private val appContext: Context, workerParams: WorkerParameters) :
-    Worker(appContext, workerParams) {
+class NotificationWorker(
+    private val appContext: Context,
+    workerParams: WorkerParameters
+) : Worker(appContext, workerParams) {
 
         //todo notification conditions
         // schedule notification when date+time is assign to task in new & edit case do same -> DONE

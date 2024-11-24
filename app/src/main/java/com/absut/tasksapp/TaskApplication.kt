@@ -25,15 +25,15 @@ class TaskApplication : Application(), Configuration.Provider{
  * FEATURES
  * ----------->
  * Add notification action "Mark complete" and update task completion status via broadcast receiver and work manager to perform db operation
- * Change notification icon color to red if it is of yesterday's task and remind yesterdays duedate task on next day if not completed
+ * Change notification icon color to red if it is of yesterday's task and remind yesterdays due date task on next day if not completed
  * Long press to rearrange task position (add one more column for indexing custom priority or position)
  * Splash screen api implementation (resolve issue with dynamic color theming)
+ * good morning notification with message to note down today's task notification everyday at 9:00 am with different notification channel and unique periodic request
  *
  * ISSUES
  * ----------->
  * Stop scheduling or checking to schedule notification if task details are not changed
  * confirmation on back press when changes has been made on task detail screen
- * multiple scheduler task at same time only work last scheduled task
- * worker not working whe is not opened
+ * worker not working when app is not opened (SCHEDULE_EXACT_ALARM) migrate to AlarmManager API
  *
  * */

@@ -1,7 +1,9 @@
 package com.absut.tasksapp.util.worker
 
 import android.util.Log
+import androidx.work.Constraints
 import androidx.work.ExistingWorkPolicy
+import androidx.work.NetworkType
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.workDataOf
@@ -31,6 +33,7 @@ object WorkerUtil {
 
         /*val constraints = Constraints.Builder()
             .setRequiresBatteryNotLow(false)
+            .setRequiredNetworkType(NetworkType.NOT_REQUIRED)
             .build()*/
 
         val workRequest = OneTimeWorkRequestBuilder<NotificationWorker>()
