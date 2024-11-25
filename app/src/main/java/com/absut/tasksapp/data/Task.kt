@@ -1,11 +1,13 @@
 package com.absut.tasksapp.data
 
 import android.os.Parcelable
+import androidx.annotation.Keep
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import androidx.room.TypeConverters
 import kotlinx.parcelize.Parcelize
 
+@Keep
 @Parcelize
 @Entity(tableName = "task_table")
 @TypeConverters(PairTypeConverter::class)
