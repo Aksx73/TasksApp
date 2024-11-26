@@ -27,6 +27,7 @@ class TaskApplication : Application(){
  * Long press to rearrange task position (add one more column for indexing custom priority or position)
  * Splash screen api implementation (resolve issue with dynamic color theming)
  * good morning notification with message to note down today's task notification everyday at 9:00 am with different notification channel and unique periodic request
+ * Add repetitive task while rub periodical on given time (weekly, daily, monthly)
  *
  * ISSUES
  * ----------->
